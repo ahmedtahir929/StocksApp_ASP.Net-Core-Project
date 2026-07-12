@@ -1,0 +1,62 @@
+﻿@model Orders
+@{
+    ViewBag.Title = "Orders PDF";
+    Layout = null; // No layout for PDF rendering
+}
+
+<link href="@("http://" + Context.Request.Host.ToString() + "/StyleSheet.css")" rel="stylesheet" />
+
+<div class="pdf-container">
+    <h1 class="pdf-title">Orders</h1>
+
+    <table class="table w-100">
+        <thead>
+            <tr>
+                <th style="width: 25%;">Date and Time</th>
+                <th style="width: 30%;">Stock</th>
+                <th style="width: 15%;">Order Type</th>
+                <th style="width: 10%;">Quantity</th>
+                <th style="width: 10%;">Price</th>
+                <th style="width: 10%;">Trade Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (
+                (Model.BuyOrders == null || !Model.BuyOrders.Any()) &&
+                (Model.SellOrders == null || !Model.SellOrders.Any()))
+            {
+                <tr>
+                    <td colspan="6" class="text-center">No orders placed yet.</td>
+                </tr>
+            }
+            @if (Model.BuyOrders != null)
+            {
+                foreach (var order in Model.BuyOrders)
+                {
+                    <tr>
+                        <td>@order.DateAndTimeOfOrder?.ToString("dd MMMM yyyy hh:mm:ss tt")</td>
+                        <td>@order.StockName (@order.StockSymbol)</td>
+                        <td>BuyOrder</td>
+                        <td>@order.Quantity</td>
+                        <td>$ @order.Price.ToString("F2")</td>
+                        <td>@order.TradeAmount</td>
+                    </tr>
+                }
+            }
+            @if (Model.SellOrders != null)
+            {
+                foreach (var order in Model.SellOrders)
+                {
+                    <tr>
+                        <td>@order.DateAndTimeOfOrder?.ToString("dd MMMM yyyy hh:mm:ss tt")</td>
+                        <td>@order.StockName (@order.StockSymbol)</td>
+                        <td>SellOrder</td>
+                        <td>@order.Quantity</td>
+                        <td>$ @order.Price.ToString("F2")</td>
+                        <td>@order.TradeAmount</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

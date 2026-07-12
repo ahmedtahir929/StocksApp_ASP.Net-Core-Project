@@ -1,0 +1,106 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model StockTrade
+
+<div class="box white-back stock">
+    <div class="pt flex trading-panel-flex">
+
+        <div id="stock-price-panel">
+            <h3 class="stock-title">
+                @Model.StockName
+                <span class="text-blue" id="stockSymbolDisplay" style="font-weight: normal;">(@Model.StockSymbol)</span>
+            </h3>
+
+            <div class="stock-price">
+                <span class="text-grey">$</span><span id="live-price">@Model.Price.ToString("N2")</span>
+            </div>
+        </div>
+
+        <div id="new-order-panel">
+            <form method="post" id="tradeForm">
+                <input type="hidden" asp-for="StockSymbol" />
+                <input type="hidden" asp-for="StockName" />
+                <input type="hidden" asp-for="Price" />
+
+                <div class="text-grey" style="font-weight: bold; font-size: 0.9em; margin-bottom: 5px;">New Order</div>
+
+                <div class="mb">
+                    <label asp-for="Quantity" class="form-label text-grey" style="font-size: 0.8em; display: block;">
+                        Quantity:
+                    </label>
+                    <input asp-for="Quantity"
+                           placeholder="1-100..."
+                           class="form-input"
+                           style="width: 100px;" />
+                    <span asp-validation-for="Quantity" class="text-red"></span>
+                </div>
+
+                <div id="initial-actions" class="button-panel">
+                    <button type="submit"
+                            formaction="/trade/SellOrder"
+                            class="button button-red-back trading-button mr">
+                        <i class="fa fa-arrow-down"></i> Sell
+                    </button>
+
+                    <button type="submit"
+                            formaction="/trade/BuyOrder"
+                            class="button button-green-back trading-button">
+                        <i class="fa fa-arrow-up"></i> Buy
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="trading-section" style="display:none;">
+        <div class="mt mb border-top pt" id="trade-form-container">
+            <button type="button" id="btn-submit" class="button"></button>
+        </div>
+        <div class="text-center mt">
+            <a href="javascript:void(0)"
+               onclick="cancelTrade()"
+               class="button button-blue-back"
+               style="font-size: 0.8em; text-decoration:none; color:white;">
+                Cancel
+            </a>
+        </div>
+    </div>
+
+    <div id="details-container" class="mt"></div>
+</div>
+
+@section websocket_scripts
+{
+    <script src="~/JS/finnhubwebsocket.js" asp-append-version="true"></script>
+    <script>
+        const secretToken = '@Configuration["TradingApi:ApiKey"]';
+
+        document.addEventListener("DOMContentLoaded", function() {
+        initStockSocket(secretToken);
+        });
+
+        document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "hidden") {
+        cleanupSocket();
+        }
+        else if (document.visibilityState === "visible") {
+        initStockSocket(secretToken);
+        }
+        });
+    </script>
+}
+@section scripts
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+    asp-fallback-test="window.jQuery"
+    asp-fallback-src="~/JS/lib/jQuery/jquery.min.js"
+    integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"
+    asp-fallback-test="window.jQuery.validator"
+    asp-fallback-src="~/JS/lib/jQuery/jquery.validate.min.js"
+    integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"
+    asp-fallback-test="window.jQuery.validator.unobtrusive"
+    asp-fallback-src="~/JS/lib/jQuery/jquery.validate.unobtrusive.min.js"
+    integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+}

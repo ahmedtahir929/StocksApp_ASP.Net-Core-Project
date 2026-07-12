@@ -1,0 +1,30 @@
+﻿@model IEnumerable<BuyOrderResponse>
+
+<div class="w-100 mt">
+    <h3 class="text-blue pb border-bottom">Buy Orders</h3>
+    <table class="table w-100">
+        <thead>
+            <tr>
+                <th>Stock Name</th>
+                <th>Symbol</th>
+                <th>Date/Time</th>
+                <th>Quantity</th>
+                <th>Price ($)</th>
+                <th>Trade Amount ($)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.StockName</td>
+                    <td>@order.StockSymbol</td>
+                    <td>@order.DateAndTimeOfOrder?.ToString("dd MMM yyyy HH:mm")</td>
+                    <td>@order.Quantity</td>
+                    <td>@order.Price.ToString("N2")</td>
+                    <td>@order.TradeAmount?.ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

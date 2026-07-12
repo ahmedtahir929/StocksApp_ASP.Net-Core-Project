@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/StyleSheet.css" />
+    <link 
+        rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" 
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" 
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <div class="container full-size-height">
+        
+        <div id="top-bar-div" class="flex border-bottom pb pt">
+            <div class="flex-1">
+                <span class="app-title">
+                    <i class="fa fa-money-bill-wave text-grey"></i> Stocks
+                </span>
+            </div>
+            
+            <div id="search-box-div" class="flex-1 navbar">
+                <ul>
+                    <li>
+                        <a asp-controller="Trade" asp-action="Index" class="@(ViewBag.Title == "Stocks" ? "nav-active" : "")">Trade</a>
+                        <a asp-controller="Trade" asp-action="Orders" class="@(ViewBag.Title == "Orders" ? "nav-active" : "")">Orders</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="page-content">
+            @RenderBody()
+        </div>
+
+    </div>
+    @RenderSection("websocket_scripts", required: false)
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,97 @@
+﻿@model Orders
+
+@{
+    ViewBag.Title = "Orders";
+}
+
+<div class="page-content container">
+
+    <div class="mb navbar-breadcrumb-container">
+        <div>
+            <a asp-controller="Trade" asp-action="Index" class="text-grey" style="text-decoration:none;">Stocks</a>
+            <span class="text-grey" style="font-size: 0.9em;">
+                <i class="fa fa-chevron-right" style="font-size: 0.8em; margin: 0 5px;"></i> Orders
+            </span>
+        </div>
+
+        <a asp-controller="Trade" asp-action="OrdersPDF" class="pdf-link">Download as PDF</a>
+    </div>
+
+    <div class="flex orders-list">
+
+        <div id="buy-orders-list" class="pr">
+            <div class="box white-back">
+                <h3 class="text-grey mb" style="font-size: 1.2em; font-weight: bold; padding-bottom: 10px;">
+                    Buy Orders
+                </h3>
+
+                @if (Model.BuyOrders == null || !Model.BuyOrders.Any())
+                {
+                    <p class="text-grey p">No buy orders placed yet.</p>
+                }
+                else
+                {
+                    @foreach (var order in Model.BuyOrders)
+                    {
+                        <div class="pb mt mb" style="border-bottom: 1px solid #7a7a7a;">
+                            <h4 style="font-size: 1.3em; font-weight: bold; margin-bottom: 4px;">
+                                @order.StockName <span style="font-weight: normal;">(@order.StockSymbol)</span>
+                            </h4>
+                            
+                            <div class="mb" style="font-size: 0.95em;">
+                                <strong>@order.Quantity</strong> <span class="text-grey">shares at</span> <strong>$@order.Price.ToString("N2")</strong>
+                            </div>
+
+                            <div class="mb" style="font-size: 0.9em;">
+                                <span class="text-grey" style="font-weight: bold;">Trade Amount:</span>
+                                <strong>$@((order.Quantity * order.Price).ToString("N2"))</strong>
+                            </div>
+
+                            <div class="text-grey" style="font-size: 0.85em; margin-top: 8px;">
+                                @(order.DateAndTimeOfOrder?.ToString("dd MMMM yyyy hh:mm:ss tt") ?? "N/A")
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div id="sell-orders-list" class="pl">
+            <div class="box white-back">
+                <h3 class="text-grey mb" style="font-size: 1.2em; font-weight: bold; padding-bottom: 10px;">
+                    Sell Orders
+                </h3>
+
+                @if (Model.SellOrders == null || !Model.SellOrders.Any())
+                {
+                    <p class="text-grey p">No sell orders placed yet.</p>
+                }
+                else
+                {
+                    @foreach (var order in Model.SellOrders)
+                    {
+                        <div class="pb mt mb" style="border-bottom: 1px solid #7a7a7a;">
+                            <h4 style="font-size: 1.3em; font-weight: bold; margin-bottom: 4px;">
+                                @order.StockName <span style="font-weight: normal;">(@order.StockSymbol)</span>
+                            </h4>
+                            
+                            <div class="mb" style="font-size: 0.95em;">
+                                <strong>@order.Quantity</strong> <span class="text-grey">shares at</span> <strong>$@order.Price.ToString("N2")</strong>
+                            </div>
+
+                            <div class="mb" style="font-size: 0.9em;">
+                                <span class="text-grey" style="font-weight: bold;">Trade Amount:</span>
+                                <strong>$@((order.Quantity * order.Price).ToString("N2"))</strong>
+                            </div>
+
+                            <div class="text-grey" style="font-size: 0.85em; margin-top: 8px;">
+                                @(order.DateAndTimeOfOrder?.ToString("dd MMMM yyyy hh:mm:ss tt") ?? "N/A")
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
