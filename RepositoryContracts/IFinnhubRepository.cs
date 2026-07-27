@@ -1,11 +1,11 @@
-﻿namespace ServiceContracts
+﻿namespace RepositoryContracts
 {
-    public interface IFinnhubService
+    public interface IFinnhubRepository
     {
         /// <summary>
-        /// Gets company profile of the related stock symbol
+        /// Fetches the stock's company profile with the help of stockSymbol provided
         /// </summary>
-        /// <param name="stockSymbol">stock symbol to be passed to get company profile</param>
+        /// <param name="stockSymbol">stockSymbol to provide</param>
         /// <returns>
         /// Returns Dictionary<string, object> object consisting the json result
         /// of the related company profile
@@ -13,9 +13,9 @@
         Task<Dictionary<string, object>?> GetCompanyProfile(string stockSymbol);
 
         /// <summary>
-        /// Gets stock price quote of the related stock symbol
+        /// Fetches stock price quote of the related stock symbol
         /// </summary>
-        /// <param name="stockSymbol">stock symbol to be passed to get stock price quote</param>
+        /// <param name="stockSymbol">stock symbol to provide</param>
         /// <returns>
         /// Returns Dictionary<string, object> object consisting the json result
         /// of the related stock price quote

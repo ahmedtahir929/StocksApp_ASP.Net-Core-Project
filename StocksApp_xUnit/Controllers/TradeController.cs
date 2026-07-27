@@ -14,15 +14,18 @@ namespace StocksApp_xUnit.Controllers
     public class TradeController : Controller
     {
         private readonly TradingOptions _tradingOptions;
-        private readonly IFinnHubService _finnHubService;
+        private readonly IFinnhubService _finnHubService;
         private readonly IStockService _stockService;
+        private readonly string _defaultStockSymbol;
 
         public TradeController(IOptions<TradingOptions> tradingOptions,
-            IFinnHubService finnHubService, IStockService stockService)
+            IFinnhubService finnHubService, IStockService stockService)
         {
             _tradingOptions = tradingOptions.Value;
             _finnHubService = finnHubService;
             _stockService = stockService;
+
+            _defaultStockSymbol = "MSFT";
         }
 
         private async Task<StockTrade> PopulateStockTrade(string symbol)
@@ -53,11 +56,11 @@ namespace StocksApp_xUnit.Controllers
             return stockTrade;
         }
 
-        [Route("[action]")]
+        [Route("[action]/{stockSymbol?}")]
         [Route("/")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string stockSymbol)
         {
-            StockTrade stockTrade = await PopulateStockTrade(_tradingOptions.DefaultStockSymbol);
+            StockTrade stockTrade = await PopulateStockTrade(stockSymbol ?? _defaultStockSymbol);
 
             return View(stockTrade);
         }
@@ -70,7 +73,7 @@ namespace StocksApp_xUnit.Controllers
             {
                 // Re-populate model if validation fails
                 var model = await PopulateStockTrade(buyOrderRequest.StockSymbol 
-                    ?? _tradingOptions.DefaultStockSymbol);
+                    ?? _defaultStockSymbol);
                 return View("Index", model);
             }
 
@@ -87,7 +90,7 @@ namespace StocksApp_xUnit.Controllers
             if (!ModelState.IsValid)
             {
                 var model = await PopulateStockTrade(sellOrderRequest.StockSymbol
-                    ?? _tradingOptions.DefaultStockSymbol);
+                    ?? _defaultStockSymbol);
                 return View("Index", model);
             }
 

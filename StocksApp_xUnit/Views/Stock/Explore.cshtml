@@ -1,0 +1,84 @@
+﻿@{
+    ViewBag.Title = "Explore";
+}
+@model IEnumerable<Stock>
+
+<div class="explore-container">
+
+    <!-- Left Column: Stocks List -->
+    <div class="stocks-panel">
+        <div class="stocks-header">
+            <h3>Stocks</h3>
+            <a asp-action="Explore" asp-route-stockSymbol="">Show all stocks</a>
+        </div>
+
+        <div class="stocks-list">
+            @foreach (Stock stock in Model)
+            {
+                <!-- Changed to use an onclick event and removed asp-action -->
+                <a href="#"
+                   class="stock-item"
+                   onclick="loadStockDetails(event, '@stock.StockSymbol')">
+
+                    <div class="stock-name">
+                        @stock.StockName
+                    </div>
+
+                    <div class="stock-symbol">
+                        (@stock.StockSymbol)
+                    </div>
+
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Right Column: View Component -->
+    <!-- Added ID 'stock-details-panel' to target with JS -->
+    <div class="selected-stock-container" id="stock-details-panel">
+        @if (ViewBag.StockSymbol != null)
+        {
+            @await Component.InvokeAsync("SelectedStock", new { stockSymbol = ViewBag.StockSymbol })
+        }
+        else
+        {
+            <!-- Optional: A nice default message when no stock is selected -->
+            <div style="text-align: center; color: #8a8a8a; margin-top: 50px;">
+                <h3>Select a stock to view details</h3>
+            </div>
+        }
+    </div>
+
+</div>
+
+<!-- The AJAX Script -->
+<script>
+    async function loadStockDetails(event, symbol) {
+        //Prevent the browser from navigating or jumping to the top of the page
+        event.preventDefault();
+
+        const panel = document.getElementById('stock-details-panel');
+
+        //Show a loading state so the user knows it's fetching data
+        panel.innerHTML = '<div style="margin-top: 50px; text-align: center; color: #666;">Loading...</div>';
+
+        try {
+            //Route needs to match exactly the controller endpoint
+            const response = await fetch(`/Stock/GetStockDetails/${symbol}`);
+
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            //Extracting the HTML from the response
+            const html = await response.text();
+
+            //Injecting the ViewComponent HTML into the panel
+            panel.innerHTML = html;
+        } catch (error) {
+            console.error("Failed to fetch stock details:", error);
+            panel.innerHTML =
+            '<div style="color: red; margin-top: 20px;">Failed to load stock details. Please try again.</div>';
+        }
+    }
+</script>

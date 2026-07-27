@@ -1,0 +1,36 @@
+﻿@model Stock
+
+<div class="selected-stock-panel">
+    <div class="stock-logo-box">
+        <div class="stock-logo-box">
+            <img src="@Model.Logo"
+                 alt="@Model.StockName Logo"
+                 class="stock-logo-img"
+                 onerror="this.style.display='none'" />
+        </div>
+    </div>
+
+    <h2 class="selected-stock-title">@Model.StockName (@Model.StockSymbol)</h2>
+
+    <div class="stock-badges">
+        <span class="badge badge-industry">@Model.FinnhubIndustry</span>
+    </div>
+
+    <div class="stock-exchange">
+        <strong>Exchange:</strong> <span class="badge badge-exchange">@Model.Exchange</span>
+    </div>
+
+    <div class="selected-stock-price-container">
+        <span class="price-currency">$</span>
+        <!-- Format price to two decimal places -->
+        <span class="price-value">@Model.Price.ToString("N2")</span>
+    </div>
+
+    <!-- The actual Trade Route logic applied here -->
+    <a asp-controller="Trade"
+       asp-action="Index"
+       asp-route-stockSymbol="@Model.StockSymbol"
+       class="button button-blue-back trade-now-btn">
+        Trade Now
+    </a>
+</div>

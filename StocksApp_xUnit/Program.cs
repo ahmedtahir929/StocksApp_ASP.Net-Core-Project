@@ -1,6 +1,8 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Repositories;
+using RepositoryContracts;
 using Rotativa.AspNetCore;
 using ServiceContracts;
 using Services;
@@ -11,8 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(container =>
 {
-    container.RegisterType<FinnhubService>().As<IFinnHubService>().InstancePerLifetimeScope();
-    container.RegisterType<StocksService>().As<IStockService>().SingleInstance();
+    container.RegisterType<FinnhubService>().As<IFinnhubService>().InstancePerLifetimeScope();
+    container.RegisterType<StocksService>().As<IStockService>().InstancePerLifetimeScope();
+    container.RegisterType<FinnhubRepository>().As<IFinnhubRepository>().InstancePerLifetimeScope();
 });
 
 builder.Services.AddHttpClient();

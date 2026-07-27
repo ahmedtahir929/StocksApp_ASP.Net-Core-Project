@@ -1,6 +1,8 @@
 <Solution>
   <Project Path="Entities/Entities.csproj" Id="16499d09-9102-4236-b288-423d5bd293af" />
   <Project Path="Options/Options.csproj" Id="56d832cf-a174-4f62-bdbf-fb6188bd01be" />
+  <Project Path="Repositories/Repositories.csproj" Id="5dc82781-c85f-47ab-aa41-1f50cb6bd9f5" />
+  <Project Path="RepositoryContracts/RepositoryContracts.csproj" Id="c7e7ab1e-ce0a-4d06-aaff-2e9a0cf049be" />
   <Project Path="ServiceContracts/ServiceContracts.csproj" Id="8656800a-1e89-4d8a-aa27-67d93f22c043" />
   <Project Path="Services/Services.csproj" Id="f9844db3-dd15-4dbc-85df-5983d07268e1" />
   <Project Path="StockAppTests/StockAppTests.csproj" Id="c52993b6-4d44-43bf-b319-85f08811fb97" />

@@ -7,9 +7,9 @@ function initStockSocket(token) {
   }
 
   // Correctly targets the input field element to retrieve the clean ticker symbol string
-  const symbolElement = document.getElementById("stockSymbol");
+  const symbolElement = document.getElementById("StockSymbol");
   if (!symbolElement) {
-    console.error("Could not find stockSymbol element.");
+    console.error("Could not find StockSymbol element.");
     return;
   }
 

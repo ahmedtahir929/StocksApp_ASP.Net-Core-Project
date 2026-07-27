@@ -1,76 +1,58 @@
-﻿using Microsoft.Extensions.Options;
+﻿using RepositoryContracts;
 using ServiceContracts;
-using StocksApp_xUnit.Options;
-using System.Text.Json;
 
 namespace Services
 {
-    public class FinnhubService : IFinnHubService
+    public class FinnhubService : IFinnhubService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly TradingApiOptions _tradingApiOptions;
+        private readonly IFinnhubRepository _finnhubRepository;
 
-        public FinnhubService(IHttpClientFactory httpClientFactory, IOptions<TradingApiOptions> tradingApiOptions)
+        public FinnhubService(IFinnhubRepository finnhubRepository)
         {
-            _httpClientFactory = httpClientFactory;
-            _tradingApiOptions = tradingApiOptions.Value;
+            _finnhubRepository = finnhubRepository;
         }
 
         public async Task<Dictionary<string, object>?> GetCompanyProfile(string stockSymbol)
         {
-            using HttpClient httpClient = _httpClientFactory.CreateClient();
-            
-            string symbol = stockSymbol.Trim().ToUpperInvariant();
-            string token = _tradingApiOptions.ApiKey;
+            if (string.IsNullOrWhiteSpace(stockSymbol)) { return null; }
 
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage()
-            {
-                RequestUri = new Uri($"https://finnhub.io/api/v1/stock/profile2?symbol={symbol}&token={token}"),
-                Method = HttpMethod.Get,
-            };
-
-            HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
-
-            Stream stream = await httpResponseMessage.Content.ReadAsStreamAsync();
-
-            StreamReader streamReader = new StreamReader(stream);
-            string response = await streamReader.ReadToEndAsync();
-
-            Dictionary<string, object>? companyProfile =
-                JsonSerializer.Deserialize<Dictionary<string, object>>(response);
-
-            if (companyProfile == null)
-                return null;
+            Dictionary<string, object>? companyProfile = 
+                await _finnhubRepository.GetCompanyProfile(stockSymbol);
 
             return companyProfile;
         }
 
         public async Task<Dictionary<string, object>?> GetStockPriceQuote(string stockSymbol)
         {
-            using HttpClient httpClient = _httpClientFactory.CreateClient();
+            if (string.IsNullOrWhiteSpace(stockSymbol)) return null;
 
-            string symbol = stockSymbol.Trim().ToUpperInvariant();
-            string token = _tradingApiOptions.ApiKey;
-
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage() 
-            {
-                RequestUri = new Uri($"https://finnhub.io/api/v1/quote?symbol={symbol}&token={token}"),
-                Method = HttpMethod.Get,
-            };
-
-            HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
-
-            Stream stream = await httpResponseMessage.Content.ReadAsStreamAsync();
-
-            StreamReader reader = new StreamReader(stream);
-            string response = await reader.ReadToEndAsync();
-
-            Dictionary<string, object>? stockPriceQuoteKeys = 
-                JsonSerializer.Deserialize<Dictionary<string, object>>(response);
+            Dictionary<string, object>? stockPriceQuoteKeys =
+                await _finnhubRepository.GetStockPriceQuote(stockSymbol);
 
             if (stockPriceQuoteKeys == null) return null;
 
             return stockPriceQuoteKeys;
+        }
+
+        public async Task<List<Dictionary<string, string>>?> GetStocks()
+        {
+            List<Dictionary<string, string>>? stockList = await _finnhubRepository.GetStocks();
+
+            if (stockList == null) return null;
+
+            return stockList;
+        }
+
+        public async Task<Dictionary<string, object>?> SearchStocks(string stockSymbolToSearch)
+        {
+            if (string.IsNullOrWhiteSpace(stockSymbolToSearch)) return null;
+
+            Dictionary<string, object> ? stock =
+                await _finnhubRepository.SearchStocks(stockSymbolToSearch);
+
+            if (stock == null) return null;
+
+            return stock;
         }
     }
 }
