@@ -6,7 +6,6 @@ function initStockSocket(token) {
     cleanupSocket();
   }
 
-  // Correctly targets the input field element to retrieve the clean ticker symbol string
   const symbolElement = document.getElementById("StockSymbol");
   if (!symbolElement) {
     console.error("Could not find StockSymbol element.");
@@ -16,13 +15,15 @@ function initStockSocket(token) {
   const symbol = symbolElement.value;
   currentSymbol = symbol;
 
-  socket = new WebSocket(`wss://ws.finnhub.io?token=${token}`);
+  // Create the WebSocket
+  const ws = new WebSocket(`wss://ws.finnhub.io?token=${token}`);
 
-  socket.addEventListener("open", function () {
-    socket.send(JSON.stringify({ type: "subscribe", symbol: symbol }));
+  ws.addEventListener("open", function (event) {
+    // FIX: Use event.target instead of the global 'socket' variable
+    event.target.send(JSON.stringify({ type: "subscribe", symbol: symbol }));
   });
 
-  socket.addEventListener("message", function (event) {
+  ws.addEventListener("message", function (event) {
     const response = JSON.parse(event.data);
     if (response.type === "trade") {
       const newPrice = response.data[0].p;
@@ -30,22 +31,28 @@ function initStockSocket(token) {
     }
   });
 
-  socket.addEventListener("error", (err) =>
-    console.error("WebSocket Error:", err),
-  );
+  ws.addEventListener("error", (err) => console.error("WebSocket Error:", err));
+
+  // Assign to the global variable AFTER listeners are attached
+  socket = ws;
 }
 
 function cleanupSocket() {
-  if (socket && socket.readyState === WebSocket.OPEN) {
-    socket.send(
-      JSON.stringify({
-        type: "unsubscribe",
-        symbol: currentSymbol,
-      }),
-    );
+  if (socket) {
+    // Only send the unsubscribe message if the connection is fully open
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(
+        JSON.stringify({
+          type: "unsubscribe",
+          symbol: currentSymbol,
+        }),
+      );
+    }
+
+    // FIX: ALWAYS close the socket, even if it is still in the 'connecting' phase
     socket.close();
+    socket = null;
   }
-  socket = null;
 }
 
 function updatePriceUI(price) {

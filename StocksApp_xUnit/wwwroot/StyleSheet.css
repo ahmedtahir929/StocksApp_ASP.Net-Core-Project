@@ -627,6 +627,13 @@ a.link-hover:hover {
   border: 2px solid #dddddd;
   border-radius: 10px;
   padding: 16px;
+  /* Flex column to manage internal height */
+  display: flex;
+  flex-direction: column;
+  /* Prevent panel from expanding past the viewport */
+  max-height: calc(
+    100vh - 140px
+  ); /* Adjust 140px based on your navbar/header height */
 }
 
 .stocks-header {
@@ -653,6 +660,10 @@ a.link-hover:hover {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  /* Make only this list scrollable */
+  overflow-y: auto;
+  flex: 1; /* Takes up remaining space in the panel */
+  padding-right: 8px; /* Adds breathing room for the scrollbar */
 }
 
 .stock-item {
@@ -663,6 +674,25 @@ a.link-hover:hover {
   border-radius: 8px;
   padding: 14px 12px;
   transition: 0.2s;
+}
+
+/* Custom Scrollbar for the Stocks List */
+.stocks-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.stocks-list::-webkit-scrollbar-track {
+  background: #f7f7f7;
+  border-radius: 10px;
+}
+
+.stocks-list::-webkit-scrollbar-thumb {
+  background: #dcdcdc;
+  border-radius: 10px;
+}
+
+.stocks-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .stock-item:hover {
@@ -758,7 +788,7 @@ a.link-hover:hover {
 }
 
 .price-currency {
-  font-size: 45px;
+  font-size: 55px;
   color: #929292;
   margin-right: 12px;
   font-weight: bold;

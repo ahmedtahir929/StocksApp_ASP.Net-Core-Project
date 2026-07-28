@@ -45,6 +45,8 @@ namespace StocksApp_xUnit.Controllers
                     stockTrade.StockName = name?.ToString();
                 if (companyProfile.TryGetValue("ticker", out var ticker))
                     stockTrade.StockSymbol = ticker?.ToString();
+                if (companyProfile.TryGetValue("logo", out var logo))
+                    stockTrade.Logo = logo?.ToString();
             }
 
             if (stockQuote != null && stockQuote.TryGetValue("c", out var currentPrice))

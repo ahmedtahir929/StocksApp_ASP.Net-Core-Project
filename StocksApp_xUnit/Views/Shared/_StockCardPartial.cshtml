@@ -4,6 +4,12 @@
     <div class="pt flex trading-panel-flex">
 
         <div id="stock-price-panel">
+            <div class="stock-logo-box">
+                <img src="@Model.Logo"
+                     alt="@Model.StockName Logo"
+                     class="stock-logo-img"
+                     onerror="this.style.display='none'" />
+            </div>
             <h3 class="stock-title">
                 @Model.StockName
                 <span class="text-blue" id="stockSymbolDisplay" style="font-weight: normal;">(@Model.StockSymbol)</span>

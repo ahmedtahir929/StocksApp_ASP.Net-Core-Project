@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
     ViewBag.Title = "Explore";
 }
 @model IEnumerable<Stock>
@@ -15,7 +17,6 @@
         <div class="stocks-list">
             @foreach (Stock stock in Model)
             {
-                <!-- Changed to use an onclick event and removed asp-action -->
                 <a href="#"
                    class="stock-item"
                    onclick="loadStockDetails(event, '@stock.StockSymbol')">
@@ -34,7 +35,6 @@
     </div>
 
     <!-- Right Column: View Component -->
-    <!-- Added ID 'stock-details-panel' to target with JS -->
     <div class="selected-stock-container" id="stock-details-panel">
         @if (ViewBag.StockSymbol != null)
         {
@@ -42,43 +42,67 @@
         }
         else
         {
-            <!-- Optional: A nice default message when no stock is selected -->
             <div style="text-align: center; color: #8a8a8a; margin-top: 50px;">
                 <h3>Select a stock to view details</h3>
             </div>
         }
     </div>
-
 </div>
 
-<!-- The AJAX Script -->
-<script>
-    async function loadStockDetails(event, symbol) {
-        //Prevent the browser from navigating or jumping to the top of the page
-        event.preventDefault();
+@section scripts {
+    <!-- Include your existing WebSocket script -->
+    <script src="~/JS/finnhubwebsocket.js" asp-append-version="true"></script>
 
-        const panel = document.getElementById('stock-details-panel');
+    <script>
+        // Store the token from appsettings.json
+        const secretToken = '@Configuration["TradingApi:ApiKey"]';
 
-        //Show a loading state so the user knows it's fetching data
-        panel.innerHTML = '<div style="margin-top: 50px; text-align: center; color: #666;">Loading...</div>';
+        async function loadStockDetails(event, symbol) {
+            event.preventDefault();
 
-        try {
-            //Route needs to match exactly the controller endpoint
-            const response = await fetch(`/Stock/GetStockDetails/${symbol}`);
+            const panel = document.getElementById('stock-details-panel');
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
+            // Show a loading state
+            panel.innerHTML = '<div style="margin-top: 50px; text-align: center; color: #666;">Loading...</div>';
+
+            try {
+                const response = await fetch(`/Stock/GetStockDetails/${symbol}`);
+
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+
+                // Extract and inject HTML
+                const html = await response.text();
+                panel.innerHTML = html;
+
+                // IMPORTANT: Initialize the WebSocket for the new stock after HTML is injected
+                initStockSocket(secretToken);
+
+            } catch (error) {
+                console.error("Failed to fetch stock details:", error);
+                panel.innerHTML = '<div style="color: red; margin-top: 20px;">Failed to load stock details. Please try again.</div>';
             }
-
-            //Extracting the HTML from the response
-            const html = await response.text();
-
-            //Injecting the ViewComponent HTML into the panel
-            panel.innerHTML = html;
-        } catch (error) {
-            console.error("Failed to fetch stock details:", error);
-            panel.innerHTML =
-            '<div style="color: red; margin-top: 20px;">Failed to load stock details. Please try again.</div>';
         }
-    }
-</script>
+
+        // Handle initial page load if a stock was pre-selected via ViewBag
+        document.addEventListener("DOMContentLoaded", function() {
+            const initialSymbol = document.getElementById("StockSymbol");
+            if (initialSymbol) {
+                initStockSocket(secretToken);
+            }
+        });
+
+        // Clean up socket when user switches tabs to save bandwidth, reconnect when they return
+        document.addEventListener("visibilitychange", function() {
+            if (document.visibilityState === "hidden") {
+                cleanupSocket();
+            } else if (document.visibilityState === "visible") {
+                const currentSymbolInput = document.getElementById("StockSymbol");
+                if (currentSymbolInput) {
+                    initStockSocket(secretToken);
+                }
+            }
+        });
+    </script>
+}

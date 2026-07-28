@@ -1,13 +1,14 @@
 ﻿@model Stock
 
 <div class="selected-stock-panel">
+    <!-- Hidden input so finnhubwebsocket.js can find the active symbol -->
+    <input type="hidden" id="StockSymbol" value="@Model.StockSymbol" />
+
     <div class="stock-logo-box">
-        <div class="stock-logo-box">
-            <img src="@Model.Logo"
-                 alt="@Model.StockName Logo"
-                 class="stock-logo-img"
-                 onerror="this.style.display='none'" />
-        </div>
+        <img src="@Model.Logo"
+             alt="@Model.StockName Logo"
+             class="stock-logo-img"
+             onerror="this.style.display='none'" />
     </div>
 
     <h2 class="selected-stock-title">@Model.StockName (@Model.StockSymbol)</h2>
@@ -22,8 +23,8 @@
 
     <div class="selected-stock-price-container">
         <span class="price-currency">$</span>
-        <!-- Format price to two decimal places -->
-        <span class="price-value">@Model.Price.ToString("N2")</span>
+        <!-- Added id="live-price" so the WebSocket script can update this specific span -->
+        <span class="price-value" id="live-price">@Model.Price.ToString("N2")</span>
     </div>
 
     <!-- The actual Trade Route logic applied here -->
