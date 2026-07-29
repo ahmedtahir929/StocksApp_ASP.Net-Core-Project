@@ -58,6 +58,7 @@ namespace ServiceContracts.DTO
                 DateAndTimeOfOrder = sellOrder.DateAndTimeOfOrder,
                 Quantity = sellOrder.Quantity,
                 Price = sellOrder.Price,
+                TradeAmount = sellOrder.Price * sellOrder.Quantity
             };
         }
     }

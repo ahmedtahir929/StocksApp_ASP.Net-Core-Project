@@ -15,15 +15,15 @@ namespace StocksApp_xUnit.Controllers
     {
         private readonly TradingOptions _tradingOptions;
         private readonly IFinnhubService _finnHubService;
-        private readonly IStockService _stockService;
+        private readonly IStocksService _stocksService;
         private readonly string _defaultStockSymbol;
 
         public TradeController(IOptions<TradingOptions> tradingOptions,
-            IFinnhubService finnHubService, IStockService stockService)
+            IFinnhubService finnHubService, IStocksService stocksService)
         {
             _tradingOptions = tradingOptions.Value;
             _finnHubService = finnHubService;
-            _stockService = stockService;
+            _stocksService = stocksService;
 
             _defaultStockSymbol = "MSFT";
         }
@@ -80,7 +80,7 @@ namespace StocksApp_xUnit.Controllers
             }
 
             buyOrderRequest.DateAndTimeOfOrder = DateTime.Now;
-            await _stockService.CreateBuyOrder(buyOrderRequest);
+            await _stocksService.CreateBuyOrder(buyOrderRequest);
 
             return RedirectToAction("Orders", "Trade");
         }
@@ -97,7 +97,7 @@ namespace StocksApp_xUnit.Controllers
             }
 
             sellOrderRequest.DateAndTimeOfOrder = DateTime.Now;
-            await _stockService.CreateSellOrder(sellOrderRequest);
+            await _stocksService.CreateSellOrder(sellOrderRequest);
 
             return RedirectToAction("Orders", "Trade");
         }
@@ -107,8 +107,8 @@ namespace StocksApp_xUnit.Controllers
         {
             Orders orders = new Orders() 
             {
-                BuyOrders = await _stockService.GetAllBuyOrders(),
-                SellOrders = await _stockService.GetAllSellOrders()
+                BuyOrders = await _stocksService.GetAllBuyOrders(),
+                SellOrders = await _stocksService.GetAllSellOrders()
             };
 
             return View(orders);
@@ -117,7 +117,7 @@ namespace StocksApp_xUnit.Controllers
         [Route("[action]")]
         public async Task<IActionResult> BuyDetails()
         {
-            List<BuyOrderResponse> buyOrders = await _stockService.GetAllBuyOrders();
+            List<BuyOrderResponse> buyOrders = await _stocksService.GetAllBuyOrders();
 
             return ViewComponent("BuyTable", new { buyOrders });
         }
@@ -125,7 +125,7 @@ namespace StocksApp_xUnit.Controllers
         [Route("[action]")]
         public async Task<IActionResult> SellDetails()
         {
-            List<SellOrderResponse> sellOrders = await _stockService.GetAllSellOrders();
+            List<SellOrderResponse> sellOrders = await _stocksService.GetAllSellOrders();
 
             return ViewComponent("SellTable", new { sellOrders });
         }
@@ -135,8 +135,8 @@ namespace StocksApp_xUnit.Controllers
         {
             Orders orders = new Orders()
             {
-                BuyOrders = await _stockService.GetAllBuyOrders(),
-                SellOrders = await _stockService.GetAllSellOrders()
+                BuyOrders = await _stocksService.GetAllBuyOrders(),
+                SellOrders = await _stocksService.GetAllSellOrders()
             };
 
             return new ViewAsPdf("OrdersPDF", orders, ViewData)

@@ -7,7 +7,7 @@ namespace StockAppTests
     public class StockServiceTests
     {
         private readonly ITestOutputHelper _testOutputHelper;
-        private readonly IStockService _stockService;
+        private readonly IStocksService _stockService;
 
         public StockServiceTests(ITestOutputHelper testOutputHelper)
         {

@@ -1,33 +1,17 @@
 ﻿using Entities;
+using RepositoryContracts;
 using ServiceContracts.DTO;
 using Services.Helpers;
-using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
-    public class StocksService : IStockService
+    public class StocksService : IStocksService
     {
-        private readonly StockMarketDbContext _db;
+        private readonly IStocksRepository _stocksRepository;
 
-        public StocksService(StockMarketDbContext ordersDbContext)
+        public StocksService(IStocksRepository stocksRepository)
         {
-            _db = ordersDbContext;
-        }
-
-        private static BuyOrderResponse ConvertToBuyOrderResponse(BuyOrder buyOrder)
-        {
-            BuyOrderResponse buyOrderResponse = buyOrder.ToBuyOrderResponse();
-            buyOrderResponse.TradeAmount = buyOrderResponse.Price * buyOrderResponse.Quantity;
-
-            return buyOrderResponse;
-        }
-
-        private static SellOrderResponse ConvertToSellOrderResponse(SellOrder sellOrder)
-        {
-            SellOrderResponse sellOrderResponse = sellOrder.ToSellOrderResponse();
-            sellOrderResponse.TradeAmount = sellOrderResponse.Price * sellOrderResponse.Quantity;
-
-            return sellOrderResponse;
+            _stocksRepository = stocksRepository;
         }
 
         public async Task<BuyOrderResponse> CreateBuyOrder(BuyOrderRequest? buyOrderRequest)
@@ -43,11 +27,10 @@ namespace Services
             //Generate BuyOrderID
             buyOrder.BuyOrderID = Guid.NewGuid();
 
-            //Save BuyOrder obj to the data source
-            _db.Add(buyOrder);
-            await _db.SaveChangesAsync();
+            //Save BuyOrder obj to the data store
+            await _stocksRepository.CreateBuyOrder(buyOrder);
 
-            return ConvertToBuyOrderResponse(buyOrder);
+            return buyOrder.ToBuyOrderResponse();
         }
 
         public async Task<SellOrderResponse> CreateSellOrder(SellOrderRequest? sellOrderRequest)
@@ -61,25 +44,30 @@ namespace Services
             SellOrder sellOrder = sellOrderRequest.ToSellOrder();
             sellOrder.SellOrderID = Guid.NewGuid();
 
-            //Adding to sell order list
-            _db.Add(sellOrder);
-            await _db.SaveChangesAsync();
+            //Save SellOrder obj to the data store
+            await _stocksRepository.CreateSellOrder(sellOrder);
 
-            return ConvertToSellOrderResponse(sellOrder);
+            return sellOrder.ToSellOrderResponse();
         }
 
         public async Task<List<BuyOrderResponse>> GetAllBuyOrders()
         {
-            return await _db.BuyOrders
-                .Select(temp => ConvertToBuyOrderResponse(temp))
-                .ToListAsync();
+            List<BuyOrder> buyOrders = await _stocksRepository.GetBuyOrders();
+
+            if (buyOrders == null)
+                return new List<BuyOrderResponse>();
+
+            return buyOrders.Select(temp => temp.ToBuyOrderResponse()).ToList();
         }
 
         public async Task<List<SellOrderResponse>> GetAllSellOrders()
         {
-            return await _db.SellOrders
-                .Select(temp => ConvertToSellOrderResponse(temp))
-                .ToListAsync();
+            List<SellOrder> sellOrders = await _stocksRepository.GetSellOrders();
+
+            if (sellOrders == null)
+                return new List<SellOrderResponse>();
+
+            return sellOrders.Select(temp => temp.ToSellOrderResponse()).ToList();
         }
     }
 }

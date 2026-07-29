@@ -57,7 +57,8 @@ namespace ServiceContracts.DTO
                 StockName = buyOrder.StockName,
                 DateAndTimeOfOrder = buyOrder.DateAndTimeOfOrder,
                 Quantity = buyOrder.Quantity,
-                Price = buyOrder.Price
+                Price = buyOrder.Price,
+                TradeAmount = buyOrder.Price * buyOrder.Quantity
             };
         }
     }

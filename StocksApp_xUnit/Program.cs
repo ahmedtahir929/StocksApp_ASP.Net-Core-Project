@@ -14,8 +14,9 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(container =>
 {
     container.RegisterType<FinnhubService>().As<IFinnhubService>().InstancePerLifetimeScope();
-    container.RegisterType<StocksService>().As<IStockService>().InstancePerLifetimeScope();
+    container.RegisterType<StocksService>().As<IStocksService>().InstancePerLifetimeScope();
     container.RegisterType<FinnhubRepository>().As<IFinnhubRepository>().InstancePerLifetimeScope();
+    container.RegisterType<StocksRepository>().As<IStocksRepository>().InstancePerLifetimeScope();
 });
 
 builder.Services.AddHttpClient();

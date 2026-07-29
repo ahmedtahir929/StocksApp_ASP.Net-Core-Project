@@ -3,38 +3,38 @@
     public interface IFinnhubRepository
     {
         /// <summary>
-        /// Fetches the stock's company profile with the help of stockSymbol provided
+        /// Retrieves the company profile for the specified stock symbol.
         /// </summary>
-        /// <param name="stockSymbol">stockSymbol to provide</param>
+        /// <param name="stockSymbol">The stock symbol of the company.</param>
         /// <returns>
-        /// Returns Dictionary<string, object> object consisting the json result
-        /// of the related company profile
+        /// A dictionary containing the company profile data if found; otherwise, <c>null</c>.
         /// </returns>
         Task<Dictionary<string, object>?> GetCompanyProfile(string stockSymbol);
 
         /// <summary>
-        /// Fetches stock price quote of the related stock symbol
+        /// Retrieves the latest stock price quote for the specified stock symbol.
         /// </summary>
-        /// <param name="stockSymbol">stock symbol to provide</param>
+        /// <param name="stockSymbol">The stock symbol.</param>
         /// <returns>
-        /// Returns Dictionary<string, object> object consisting the json result
-        /// of the related stock price quote
+        /// A dictionary containing the stock price quote if successful; otherwise, <c>null</c>.
         /// </returns>
         Task<Dictionary<string, object>?> GetStockPriceQuote(string stockSymbol);
 
-
         /// <summary>
-        /// Fetches the list of top 25 stocks
+        /// Retrieves the list of available stocks configured in the application settings.
         /// </summary>
-        /// <returns>Returns the list of top 25 stocks</returns>
+        /// <returns>
+        /// A list of stock details if successful; otherwise, <c>null</c>.
+        /// </returns>
         Task<List<Dictionary<string, string>>?> GetStocks();
 
-
         /// <summary>
-        /// Search from the available top 25 stocks
+        /// Searches for a stock that matches the specified stock symbol.
         /// </summary>
-        /// <param name="stockSymbolToSearch">stock symbol to provide to search within stocks</param>
-        /// <returns>Returns the related stock</returns>
+        /// <param name="stockSymbolToSearch">The stock symbol to search for.</param>
+        /// <returns>
+        /// A dictionary containing the matching stock information if found; otherwise, <c>null</c>.
+        /// </returns>
         Task<Dictionary<string, object>?> SearchStocks(string stockSymbolToSearch);
     }
 }
