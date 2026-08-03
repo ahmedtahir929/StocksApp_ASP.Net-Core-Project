@@ -52,7 +52,7 @@ namespace Services
 
         public async Task<List<BuyOrderResponse>> GetAllBuyOrders()
         {
-            List<BuyOrder> buyOrders = await _stocksRepository.GetBuyOrders();
+            List<BuyOrder> buyOrders = await _stocksRepository.GetAllBuyOrders();
 
             if (buyOrders == null)
                 return new List<BuyOrderResponse>();
@@ -62,7 +62,7 @@ namespace Services
 
         public async Task<List<SellOrderResponse>> GetAllSellOrders()
         {
-            List<SellOrder> sellOrders = await _stocksRepository.GetSellOrders();
+            List<SellOrder> sellOrders = await _stocksRepository.GetAllSellOrders();
 
             if (sellOrders == null)
                 return new List<SellOrderResponse>();

@@ -22,12 +22,12 @@ namespace RepositoryContracts
         /// Fetches all the stored BuyOrder objs from the data store
         /// </summary>
         /// <returns>Returns a list of BuyOrder fetched from the data store</returns>
-        public Task<List<BuyOrder>> GetBuyOrders();
+        public Task<List<BuyOrder>> GetAllBuyOrders();
 
         /// <summary>
         /// Fetches all the stored SellOrder objs from the data store
         /// </summary>
         /// <returns>Returns a list of SellOrder fetched from the data store</returns>
-        public Task<List<SellOrder>> GetSellOrders();
+        public Task<List<SellOrder>> GetAllSellOrders();
     }
 }

@@ -1,349 +1,299 @@
-﻿using ServiceContracts.DTO;
+﻿using AutoFixture;
+using Entities;
+using FluentAssertions;
+using Moq;
+using RepositoryContracts;
+using ServiceContracts.DTO;
 using Services;
-using Xunit.Abstractions;
 
 namespace StockAppTests
 {
     public class StockServiceTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly IFixture _fixture;
         private readonly IStocksService _stockService;
+        private readonly IStocksRepository _stocksRepository;
+        private readonly Mock<IStocksRepository> _stocksRepositoryMock;
 
-        public StockServiceTests(ITestOutputHelper testOutputHelper)
+        public StockServiceTests()
         {
-            _testOutputHelper = testOutputHelper;
-            _stockService = new StocksService();
+            _fixture = new Fixture();
+            
+            _stocksRepositoryMock = new Mock<IStocksRepository>();
+            _stocksRepository = _stocksRepositoryMock.Object;
+            _stockService = new StocksService(_stocksRepository);
         }
 
         #region CreateBuyOrder
         [Fact]
-        public async Task CreateBuyOrder_NullBuyOrder()
+        public async Task CreateBuyOrder_NullBuyOrder_ToBeArgumentNullException()
         {
             //Arrage
             BuyOrderRequest? buyOrderRequest = null;
 
+            //Act
+            Func<Task> action = async () => await _stockService.CreateBuyOrder(buyOrderRequest);
+
             //Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            
-                //Act
-                _stockService.CreateBuyOrder(buyOrderRequest)
-            );
+            await action.Should().ThrowAsync<ArgumentNullException>();
         }
 
         [Fact]
-        public async Task CreateBuyOrder_MinQuantity()
+        public async Task CreateBuyOrder_MinQuantity_ToBeArgumentException()
         {
             //Arrange
-            BuyOrderRequest buyOrderRequest = new BuyOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = "123",
-                Quantity = 0,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 121.23
-            };
-
-            //Assert & Act
-            await Assert.ThrowsAsync<ArgumentException>(() => _stockService.CreateBuyOrder(buyOrderRequest));
-        }
-
-        [Fact]
-        public async Task CreateBuyOrder_MaxQuantity()
-        {
-            //Arrange
-            BuyOrderRequest buyOrderRequest = new BuyOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = "123",
-                Quantity = 100001,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 121.23
-            };
-
-            //Assert & Act
-            await Assert.ThrowsAsync<ArgumentException>(() => _stockService.CreateBuyOrder(buyOrderRequest));
-        }
-
-        [Fact]
-        public async Task CreateBuyOrder_NullSymbol()
-        {
-            //Arrange
-            BuyOrderRequest buyOrderRequest = new BuyOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = null,
-                Quantity = 100001,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 121.23
-            };
-
-            //Assert & Act
-            await Assert.ThrowsAsync<ArgumentException>(() => _stockService.CreateBuyOrder(buyOrderRequest));
-        }
-
-        [Fact]
-        public async Task CreateBuyOrder_OlderDate()
-        {
-            //Arrange
-            BuyOrderRequest buyOrderRequest = new BuyOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = null,
-                Quantity = 100001,
-                DateAndTimeOfOrder = DateTime.Parse("1999-12-31"),
-                Price = 121.23
-            };
-
-            //Assert & Act
-            await Assert.ThrowsAsync<ArgumentException>(() => _stockService.CreateBuyOrder(buyOrderRequest));
-        }
-
-        [Fact]
-        public async Task CreateBuyOrder_ValidBuyOrder()
-        {
-            //Arrange
-            BuyOrderRequest buyOrderRequest = new BuyOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = "123",
-                Quantity = 1000,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 121.23
-            };
+            BuyOrderRequest buyOrderRequest = 
+                _fixture.Build<BuyOrderRequest>()
+                .With(x => x.Quantity, 0u)
+                .Create();
 
             //Act
-            BuyOrderResponse buy_order_response_from_create = await _stockService.CreateBuyOrder(buyOrderRequest);
-            List<BuyOrderResponse> buy_order_response_from_get = await _stockService.GetAllBuyOrders();
+            Func<Task> action = async () => await _stockService.CreateBuyOrder(buyOrderRequest);
 
-            Assert.Contains(buy_order_response_from_get, order => 
-            order.BuyOrderID == buy_order_response_from_create.BuyOrderID);
+            //Assert
+            await action.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Fact]
+        public async Task CreateBuyOrder_MaxQuantity_ToBeArgumentException()
+        {
+            //Arrange
+            BuyOrderRequest buyOrderRequest =
+                _fixture.Build<BuyOrderRequest>()
+                .With(x => x.Quantity, 100001u)
+                .Create();
+
+            //Act
+            Func<Task> action = async () => await _stockService.CreateBuyOrder(buyOrderRequest);
+
+            //Assert
+            await action.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Fact]
+        public async Task CreateBuyOrder_NullSymbol_ToBeArgumentException()
+        {
+            //Arrange
+            BuyOrderRequest buyOrderRequest =
+                _fixture.Build<BuyOrderRequest>()
+                .With(x => x.StockSymbol, String.Empty)
+                .Create();
+
+            //Act
+            Func<Task> action = async () => await _stockService.CreateBuyOrder(buyOrderRequest);
+
+            //Assert
+            await action.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Fact]
+        public async Task CreateBuyOrder_OlderDate_ToBeArgumentException()
+        {
+            //Arrange
+            BuyOrderRequest buyOrderRequest =
+                _fixture.Build<BuyOrderRequest>()
+                .With(x => x.DateAndTimeOfOrder, DateTime.Parse("1999-12-31"))
+                .Create();
+
+            //Act
+            Func<Task> action = async () => await _stockService.CreateBuyOrder(buyOrderRequest);
+
+            //Assert
+            await action.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Fact]
+        public async Task CreateBuyOrder_ValidBuyOrder_ToBeSuccessful()
+        {
+            //Arrange
+            BuyOrderRequest buyOrderRequest = _fixture.Build<BuyOrderRequest>()
+                .With(x => x.Quantity, 1000u)
+                .With(x => x.DateAndTimeOfOrder, DateTime.UtcNow)
+                .Create();
+
+            BuyOrder buyOrder = buyOrderRequest.ToBuyOrder();
+
+            _stocksRepositoryMock.Setup(temp => temp.CreateBuyOrder(It.IsAny<BuyOrder>()))
+                .ReturnsAsync(buyOrder);
+
+            BuyOrderResponse buyOrderResponseExpected = buyOrder.ToBuyOrderResponse();
+
+            //Act
+            BuyOrderResponse actualBuyOrderResponseFromCreate = await _stockService.CreateBuyOrder(buyOrderRequest);
+
+            buyOrderResponseExpected.BuyOrderID = actualBuyOrderResponseFromCreate.BuyOrderID;
+
+            //Assert
+            actualBuyOrderResponseFromCreate.Should().NotBeNull();
+            actualBuyOrderResponseFromCreate.Should().BeEquivalentTo(buyOrderResponseExpected);
         }
         #endregion
 
         #region CreateSellOrder
         [Fact]
-        public async Task CreateSellOrder_NullBuyOrder()
+        public async Task CreateSellOrder_NullSellOrder_ToBeArgumentNullException()
         {
             //Arrage
             SellOrderRequest? sellOrderRequest = null;
 
+            //Act
+            Func<Task> action = async () => await _stockService.CreateSellOrder(sellOrderRequest);
+
             //Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(() =>
-
-                //Act
-                _stockService.CreateSellOrder(sellOrderRequest)
-            );
+            await action.Should().ThrowAsync<ArgumentNullException>();
         }
 
         [Fact]
-        public async Task CreateSellOrder_MinQuantity()
+        public async Task CreateSellOrder_MinQuantity_ToBeArgumentException()
         {
             //Arrange
-            SellOrderRequest sellOrderRequest = new SellOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = "123",
-                Quantity = 0,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 121.23
-            };
-
-            //Assert & Act
-            await Assert.ThrowsAsync<ArgumentException>(() => _stockService.CreateSellOrder(sellOrderRequest));
-        }
-
-        [Fact]
-        public async Task CreateSellOrder_MaxQuantity()
-        {
-            //Arrange
-            SellOrderRequest sellOrderRequest = new SellOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = "123",
-                Quantity = 100001,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 121.23
-            };
-
-            //Assert & Act
-            await Assert.ThrowsAsync<ArgumentException>(() => _stockService.CreateSellOrder(sellOrderRequest));
-        }
-
-        [Fact]
-        public async Task CreateSellOrder_NullSymbol()
-        {
-            //Arrange
-            SellOrderRequest sellOrderRequest = new SellOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = null,
-                Quantity = 100001,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 121.23
-            };
-
-            //Assert & Act
-            await Assert.ThrowsAsync<ArgumentException>(() => _stockService.CreateSellOrder(sellOrderRequest));
-        }
-
-        [Fact]
-        public async Task CreateSellOrder_OlderDate()
-        {
-            //Arrange
-            SellOrderRequest sellOrderRequest = new SellOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = null,
-                Quantity = 100001,
-                DateAndTimeOfOrder = DateTime.Parse("1999-12-31"),
-                Price = 121.23
-            };
-
-            //Assert & Act
-            await Assert.ThrowsAsync<ArgumentException>(() => _stockService.CreateSellOrder(sellOrderRequest));
-        }
-
-        [Fact]
-        public async Task CreateBuyOrder_ValidSellOrder()
-        {
-            //Arrange
-            SellOrderRequest sellOrderRequest = new SellOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = "123",
-                Quantity = 1000,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 121.23
-            };
+            SellOrderRequest sellOrderRequest =
+                _fixture.Build<SellOrderRequest>()
+                .With(x => x.Quantity, 0u)
+                .Create();
 
             //Act
-            SellOrderResponse sell_order_response_from_create = await _stockService.CreateSellOrder(sellOrderRequest);
-            List <SellOrderResponse> sell_order_response_from_get = await _stockService.GetAllSellOrders();
+            Func<Task> action = async () => await _stockService.CreateSellOrder(sellOrderRequest);
 
-            Assert.Contains(sell_order_response_from_get, order =>
-            order.SellOrderID == sell_order_response_from_create.SellOrderID);
+            //Assert
+            await action.Should().ThrowAsync<ArgumentException>();
         }
+
+        [Fact]
+        public async Task CreateSellOrder_MaxQuantity_ToBeArgumentException()
+        {
+            //Arrange
+            SellOrderRequest sellOrderRequest =
+                _fixture.Build<SellOrderRequest>()
+                .With(x => x.Quantity, 100001u)
+                .Create();
+
+            //Act
+            Func<Task> action = async () => await _stockService.CreateSellOrder(sellOrderRequest);
+
+            //Assert
+            await action.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Fact]
+        public async Task CreateSellOrder_NullSymbol_ToBeArgumentException()
+        {
+            //Arrange
+            SellOrderRequest sellOrderRequest =
+                _fixture.Build<SellOrderRequest>()
+                .With(x => x.StockSymbol, string.Empty)
+                .Create();
+
+            //Act
+            Func<Task> action = async () => await _stockService.CreateSellOrder(sellOrderRequest);
+
+            //Assert
+            await action.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Fact]
+        public async Task CreateSellOrder_OlderDate_ToBeArgumentException()
+        {
+            //Arrange
+            SellOrderRequest sellOrderRequest =
+                _fixture.Build<SellOrderRequest>()
+                .With(x => x.DateAndTimeOfOrder, DateTime.Parse("1999-12-31"))
+                .Create();
+
+            //Act
+            Func<Task> action = async () => await _stockService.CreateSellOrder(sellOrderRequest);
+
+            //Assert
+            await action.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Fact]
+        public async Task CreateSellOrder_ValidSellOrder_ToBeSuccessful()
+        {
+            //Arrange
+            SellOrderRequest sellOrderRequest = _fixture.Build<SellOrderRequest>()
+                .With(x => x.Quantity, 1000u)
+                .With(x => x.DateAndTimeOfOrder, DateTime.UtcNow)
+                .Create();
+
+            SellOrder sellOrder = sellOrderRequest.ToSellOrder();
+
+            _stocksRepositoryMock.Setup(temp => temp.CreateSellOrder(It.IsAny<SellOrder>()))
+                .ReturnsAsync(sellOrder);
+
+            SellOrderResponse sellOrderResponseExpected = sellOrder.ToSellOrderResponse();
+
+            //Act
+            SellOrderResponse actualSellOrderResponseFromCreate = await _stockService.CreateSellOrder(sellOrderRequest);
+
+            sellOrderResponseExpected.SellOrderID = actualSellOrderResponseFromCreate.SellOrderID;
+
+            //Assert
+            actualSellOrderResponseFromCreate.Should().NotBeNull();
+            actualSellOrderResponseFromCreate.Should().BeEquivalentTo(sellOrderResponseExpected);
+        }
+
         #endregion
 
         #region GetAllBuyOrders
         [Fact]
-        public async Task GetAllBuyOrders_EmptyList()
+        public async Task GetAllBuyOrders_EmptyList_ToBeEmpty()
         {
             //Act
-            List<BuyOrderResponse> buy_orders_from_get = await _stockService.GetAllBuyOrders();
+            List<BuyOrderResponse> buyOrdersFromGet = await _stockService.GetAllBuyOrders();
 
             //Assert
-            Assert.Empty(buy_orders_from_get);
+            buyOrdersFromGet.Should().BeEmpty();
         }
 
         [Fact]
-        public async Task GetAllBuyOrders_ValidBuyOrders()
+        public async Task GetAllBuyOrders_ValidBuyOrders_ToBeSuccessful()
         {
             //Arrange
-            BuyOrderRequest buyOrderRequest1 = new BuyOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = "123",
-                Quantity = 20,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 101.63
-            };
-            BuyOrderRequest buyOrderRequest2 = new BuyOrderRequest()
-            {
-                StockName = "xyz",
-                StockSymbol = "456",
-                Quantity = 100,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 110.27
-            };
-            BuyOrderRequest buyOrderRequest3 = new BuyOrderRequest()
-            {
-                StockName = "lmn",
-                StockSymbol = "789",
-                Quantity = 10,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 126.23
-            };
+            List<BuyOrder> buyOrders = _fixture.Create<List<BuyOrder>>();
 
-            BuyOrderResponse buy_order_response1 = await _stockService.CreateBuyOrder(buyOrderRequest1);
-            BuyOrderResponse buy_order_response2 = await _stockService.CreateBuyOrder(buyOrderRequest2);
-            BuyOrderResponse buy_order_response3 = await _stockService.CreateBuyOrder(buyOrderRequest3);
+            _stocksRepositoryMock
+                .Setup(temp => temp.GetAllBuyOrders())
+                .ReturnsAsync(buyOrders);
 
-            List<BuyOrderResponse> buy_orders = new List<BuyOrderResponse>();
-
-            buy_orders.Add(buy_order_response1);
-            buy_orders.Add(buy_order_response2);
-            buy_orders.Add(buy_order_response3);
+            List<BuyOrderResponse> expectedBuyOrders = buyOrders.Select(x => x.ToBuyOrderResponse()).ToList();
 
             //Act
-            List<BuyOrderResponse> buy_orders_from_get = await _stockService.GetAllBuyOrders();
+            List<BuyOrderResponse> actualBuyOrdersFromGet = await _stockService.GetAllBuyOrders();
 
             //Assert
-            foreach (BuyOrderResponse orderResponse in buy_orders)
-            {
-                Assert.Contains(orderResponse, buy_orders_from_get);
-            }
+            actualBuyOrdersFromGet.Should().BeEquivalentTo(expectedBuyOrders);
         }
         #endregion
 
         #region GetAllSellOrders
         [Fact]
-        public async Task GetAllSellOrders_EmptyList()
+        public async Task GetAllSellOrders_EmptyList_ToBeEmpty()
         {
             //Act
-            List<SellOrderResponse> sell_orders_from_get = await _stockService.GetAllSellOrders();
+            List<SellOrderResponse> sellOrdersFromGet = await _stockService.GetAllSellOrders();
 
             //Assert
-            Assert.Empty(sell_orders_from_get);
+            sellOrdersFromGet.Should().BeEmpty();
         }
 
         [Fact]
-        public async Task GetAllSellOrders_ValidBuyOrders()
+        public async Task GetAllSellOrders_ValidSellOrders_ToBeSuccessful()
         {
             //Arrange
-            SellOrderRequest sellOrderRequest1 = new SellOrderRequest()
-            {
-                StockName = "abc",
-                StockSymbol = "123",
-                Quantity = 20,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 101.63
-            };
-            SellOrderRequest sellOrderRequest2 = new SellOrderRequest()
-            {
-                StockName = "xyz",
-                StockSymbol = "456",
-                Quantity = 100,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 110.27
-            };
-            SellOrderRequest sellOrderRequest3 = new SellOrderRequest()
-            {
-                StockName = "lmn",
-                StockSymbol = "789",
-                Quantity = 10,
-                DateAndTimeOfOrder = DateTime.UtcNow,
-                Price = 126.23
-            };
+            List<SellOrder> sellOrders = _fixture.Create<List<SellOrder>>();
 
-            SellOrderResponse sell_order_response1 = await _stockService.CreateSellOrder(sellOrderRequest1);
-            SellOrderResponse sell_order_response2 = await _stockService.CreateSellOrder(sellOrderRequest2);
-            SellOrderResponse sell_order_response3 = await _stockService.CreateSellOrder(sellOrderRequest3);
+            _stocksRepositoryMock
+                .Setup(temp => temp.GetAllSellOrders())
+                .ReturnsAsync(sellOrders);
 
-            List<SellOrderResponse> sell_orders = new List<SellOrderResponse>();
-
-            sell_orders.Add(sell_order_response1);
-            sell_orders.Add(sell_order_response2);
-            sell_orders.Add(sell_order_response3);
+            List<SellOrderResponse> expectedSellOrders = sellOrders.Select(x => x.ToSellOrderResponse()).ToList();
 
             //Act
-            List<SellOrderResponse> sell_orders_from_get = await _stockService.GetAllSellOrders();
+            List<SellOrderResponse> actualSellOrdersFromGet = await _stockService.GetAllSellOrders();
 
             //Assert
-            foreach (SellOrderResponse orderResponse in sell_orders)
-            {
-                Assert.Contains(orderResponse, sell_orders_from_get);
-            }
+            actualSellOrdersFromGet.Should().BeEquivalentTo(expectedSellOrders);
         }
         #endregion
     }

@@ -29,14 +29,14 @@ namespace Repositories
             return sellOrder;
         }
 
-        public async Task<List<BuyOrder>> GetBuyOrders()
+        public async Task<List<BuyOrder>> GetAllBuyOrders()
         {
             List<BuyOrder> buyOrders = await _stockMarketDbContext.BuyOrders.ToListAsync();
 
             return buyOrders;
         }
 
-        public async Task<List<SellOrder>> GetSellOrders()
+        public async Task<List<SellOrder>> GetAllSellOrders()
         {
             List<SellOrder> sellOrders = await _stockMarketDbContext.SellOrders.ToListAsync();
 

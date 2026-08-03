@@ -115,22 +115,6 @@ namespace StocksApp_xUnit.Controllers
         }
 
         [Route("[action]")]
-        public async Task<IActionResult> BuyDetails()
-        {
-            List<BuyOrderResponse> buyOrders = await _stocksService.GetAllBuyOrders();
-
-            return ViewComponent("BuyTable", new { buyOrders });
-        }
-
-        [Route("[action]")]
-        public async Task<IActionResult> SellDetails()
-        {
-            List<SellOrderResponse> sellOrders = await _stocksService.GetAllSellOrders();
-
-            return ViewComponent("SellTable", new { sellOrders });
-        }
-
-        [Route("[action]")]
         public async Task<IActionResult> OrdersPDF()
         {
             Orders orders = new Orders()
