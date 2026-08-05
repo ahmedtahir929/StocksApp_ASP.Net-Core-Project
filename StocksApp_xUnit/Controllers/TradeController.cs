@@ -60,7 +60,7 @@ namespace StocksApp_xUnit.Controllers
 
         [Route("[action]/{stockSymbol?}")]
         [Route("/")]
-        public async Task<IActionResult> Index(string stockSymbol)
+        public async Task<IActionResult> Index(string? stockSymbol)
         {
             StockTrade stockTrade = await PopulateStockTrade(stockSymbol ?? _defaultStockSymbol);
 
@@ -74,7 +74,7 @@ namespace StocksApp_xUnit.Controllers
             if (!ModelState.IsValid)
             {
                 // Re-populate model if validation fails
-                var model = await PopulateStockTrade(buyOrderRequest.StockSymbol 
+                StockTrade model = await PopulateStockTrade(buyOrderRequest.StockSymbol 
                     ?? _defaultStockSymbol);
                 return View("Index", model);
             }

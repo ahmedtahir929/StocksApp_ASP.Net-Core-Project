@@ -12,7 +12,7 @@ namespace Services
             _finnhubRepository = finnhubRepository;
         }
 
-        public async Task<Dictionary<string, object>?> GetCompanyProfile(string stockSymbol)
+        public async Task<Dictionary<string, object>?> GetCompanyProfile(string? stockSymbol)
         {
             if (string.IsNullOrWhiteSpace(stockSymbol)) { return null; }
 
@@ -22,7 +22,7 @@ namespace Services
             return companyProfile;
         }
 
-        public async Task<Dictionary<string, object>?> GetStockPriceQuote(string stockSymbol)
+        public async Task<Dictionary<string, object>?> GetStockPriceQuote(string? stockSymbol)
         {
             if (string.IsNullOrWhiteSpace(stockSymbol)) return null;
 
@@ -38,12 +38,12 @@ namespace Services
         {
             List<Dictionary<string, string>>? stockList = await _finnhubRepository.GetStocks();
 
-            if (stockList == null) return null;
+            if (stockList == null) return new List<Dictionary<string, string>>();
 
             return stockList;
         }
 
-        public async Task<Dictionary<string, object>?> SearchStocks(string stockSymbolToSearch)
+        public async Task<Dictionary<string, object>?> SearchStocks(string? stockSymbolToSearch)
         {
             if (string.IsNullOrWhiteSpace(stockSymbolToSearch)) return null;
 

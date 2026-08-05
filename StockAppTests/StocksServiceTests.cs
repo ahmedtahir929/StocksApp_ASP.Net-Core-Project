@@ -8,14 +8,14 @@ using Services;
 
 namespace StockAppTests
 {
-    public class StockServiceTests
+    public class StocksServiceTests
     {
         private readonly IFixture _fixture;
         private readonly IStocksService _stockService;
         private readonly IStocksRepository _stocksRepository;
         private readonly Mock<IStocksRepository> _stocksRepositoryMock;
 
-        public StockServiceTests()
+        public StocksServiceTests()
         {
             _fixture = new Fixture();
             

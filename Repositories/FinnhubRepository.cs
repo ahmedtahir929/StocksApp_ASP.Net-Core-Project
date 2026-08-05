@@ -9,13 +9,11 @@ namespace Repositories
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly TradingApiOptions _tradingApiOptions;
-        private readonly TradingOptions _tradingOptions;
 
         public FinnhubRepository(IHttpClientFactory httpClientFactory, IOptions<TradingApiOptions> tradingApiOptions, IOptions<TradingOptions> tradingOptions)
         {
             _httpClientFactory = httpClientFactory;
             _tradingApiOptions = tradingApiOptions.Value;
-            _tradingOptions = tradingOptions.Value; //consists stocks to fetch
         }
 
         public async Task<Dictionary<string, object>?> GetCompanyProfile(string stockSymbol)
@@ -43,7 +41,7 @@ namespace Repositories
             Dictionary<string, object>? companyProfile =
                 JsonSerializer.Deserialize<Dictionary<string, object>>(response);
 
-            if (companyProfile == null) return null;
+            if (companyProfile == null || companyProfile.Count == 0) return null;
 
             return companyProfile;
         }

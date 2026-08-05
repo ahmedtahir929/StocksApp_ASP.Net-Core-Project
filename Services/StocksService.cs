@@ -57,7 +57,10 @@ namespace Services
             if (buyOrders == null)
                 return new List<BuyOrderResponse>();
 
-            return buyOrders.Select(temp => temp.ToBuyOrderResponse()).ToList();
+            List<BuyOrderResponse> buyOrderResponses =
+                buyOrders.Select(temp => temp.ToBuyOrderResponse()).ToList();
+
+            return buyOrderResponses.OrderByDescending(temp => temp.DateAndTimeOfOrder).ToList();
         }
 
         public async Task<List<SellOrderResponse>> GetAllSellOrders()
@@ -67,7 +70,10 @@ namespace Services
             if (sellOrders == null)
                 return new List<SellOrderResponse>();
 
-            return sellOrders.Select(temp => temp.ToSellOrderResponse()).ToList();
+            List<SellOrderResponse> sellOrderResponses =
+                sellOrders.Select(temp => temp.ToSellOrderResponse()).ToList();
+
+            return sellOrderResponses.OrderByDescending(temp => temp.DateAndTimeOfOrder).ToList();
         }
     }
 }

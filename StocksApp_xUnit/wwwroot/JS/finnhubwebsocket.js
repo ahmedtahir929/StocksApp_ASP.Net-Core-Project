@@ -72,29 +72,3 @@ function updatePriceUI(price) {
     priceElement.style.color = "";
   }, 2000);
 }
-
-function prepareTrade(action) {
-  document.getElementById("initial-actions").style.display = "none";
-
-  const tradingSection = document.getElementById("trading-section");
-  const submitBtn = document.getElementById("btn-submit");
-
-  if (tradingSection) tradingSection.style.display = "block";
-
-  // Added safety check to prevent runtime crashes if the element is missing
-  if (submitBtn) {
-    if (action === "Buy") {
-      submitBtn.innerText = "Confirm Purchase";
-      submitBtn.className = "button button-green-back w-100";
-    } else {
-      submitBtn.innerText = "Confirm Sale";
-      submitBtn.className = "button button-red-back w-100";
-    }
-  }
-}
-
-function cancelTrade() {
-  document.getElementById("initial-actions").style.display = "block";
-  const tradingSection = document.getElementById("trading-section");
-  if (tradingSection) tradingSection.style.display = "none";
-}
