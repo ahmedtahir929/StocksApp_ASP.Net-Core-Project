@@ -1,5 +1,7 @@
 ﻿using Entities;
+using Microsoft.Extensions.Logging;
 using RepositoryContracts;
+using Serilog;
 using ServiceContracts.DTO;
 using Services.Helpers;
 
@@ -8,14 +10,21 @@ namespace Services
     public class StocksService : IStocksService
     {
         private readonly IStocksRepository _stocksRepository;
+        private readonly ILogger<StocksService> _logger;
+        private readonly IDiagnosticContext _diagnosticContext;
 
-        public StocksService(IStocksRepository stocksRepository)
+        public StocksService(IStocksRepository stocksRepository, ILogger<StocksService> logger,
+            IDiagnosticContext diagnosticContext)
         {
             _stocksRepository = stocksRepository;
+            _logger = logger;
+            _diagnosticContext = diagnosticContext;
         }
 
         public async Task<BuyOrderResponse> CreateBuyOrder(BuyOrderRequest? buyOrderRequest)
         {
+            _logger.LogInformation("{ServiceName}.{MethodName}() invoked", nameof(StocksService), nameof(CreateBuyOrder));
+
             ArgumentNullException.ThrowIfNull(buyOrderRequest, nameof(buyOrderRequest));
 
             //Checks if a valid model object was passed
@@ -35,6 +44,8 @@ namespace Services
 
         public async Task<SellOrderResponse> CreateSellOrder(SellOrderRequest? sellOrderRequest)
         {
+            _logger.LogInformation("{ServiceName}.{MethodName}() invoked", nameof(StocksService), nameof(CreateSellOrder));
+
             ArgumentNullException.ThrowIfNull(sellOrderRequest, nameof(sellOrderRequest));
 
             //Checks if a valid model object was passed
@@ -52,6 +63,8 @@ namespace Services
 
         public async Task<List<BuyOrderResponse>> GetAllBuyOrders()
         {
+            _logger.LogInformation("{ServiceName}.{MethodName}() invoked", nameof(StocksService), nameof(GetAllBuyOrders));
+
             List<BuyOrder> buyOrders = await _stocksRepository.GetAllBuyOrders();
 
             if (buyOrders == null)
@@ -59,6 +72,8 @@ namespace Services
 
             List<BuyOrderResponse> buyOrderResponses =
                 buyOrders.Select(temp => temp.ToBuyOrderResponse()).ToList();
+
+            _diagnosticContext.Set("BuyOrders", buyOrderResponses);
 
             return buyOrderResponses.OrderByDescending(temp => temp.DateAndTimeOfOrder).ToList();
         }
@@ -72,6 +87,8 @@ namespace Services
 
             List<SellOrderResponse> sellOrderResponses =
                 sellOrders.Select(temp => temp.ToSellOrderResponse()).ToList();
+
+            _diagnosticContext.Set("SellOrders", sellOrderResponses);
 
             return sellOrderResponses.OrderByDescending(temp => temp.DateAndTimeOfOrder).ToList();
         }

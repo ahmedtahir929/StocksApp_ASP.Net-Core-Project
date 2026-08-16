@@ -15,6 +15,18 @@ namespace ServiceContracts.DTO
         public double Price { get; set; }
         public double? TradeAmount { get; set; }
 
+        public override string ToString()
+        {
+            return "BuyOrderResponse: " +
+                   $"BuyOrderID={BuyOrderID}, " +
+                   $"StockSymbol={StockSymbol}, " +
+                   $"StockName={StockName}, " +
+                   $"DateAndTimeOfOrder={DateAndTimeOfOrder}, " +
+                   $"Quantity={Quantity}, " +
+                   $"Price={Price}, " +
+                   $"TradeAmount={TradeAmount}";
+        }
+
         public override bool Equals(object? obj)
         {
             if (obj is not BuyOrderResponse other)

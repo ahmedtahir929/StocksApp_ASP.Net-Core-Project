@@ -17,13 +17,15 @@ namespace StocksApp_xUnit.Controllers
         private readonly IFinnhubService _finnHubService;
         private readonly IStocksService _stocksService;
         private readonly string _defaultStockSymbol;
+        private readonly ILogger<TradeController> _logger;
 
         public TradeController(IOptions<TradingOptions> tradingOptions,
-            IFinnhubService finnHubService, IStocksService stocksService)
+            IFinnhubService finnHubService, IStocksService stocksService, ILogger<TradeController> logger)
         {
             _tradingOptions = tradingOptions.Value;
             _finnHubService = finnHubService;
             _stocksService = stocksService;
+            _logger = logger;
 
             _defaultStockSymbol = "MSFT";
         }
@@ -62,6 +64,8 @@ namespace StocksApp_xUnit.Controllers
         [Route("/")]
         public async Task<IActionResult> Index(string? stockSymbol)
         {
+            _logger.LogInformation("{ControllerName}.{ActionName}() invoked with stockSymbol: {stockSymbol}", nameof(TradeController), nameof(Index), stockSymbol);
+
             StockTrade stockTrade = await PopulateStockTrade(stockSymbol ?? _defaultStockSymbol);
 
             return View(stockTrade);
@@ -71,6 +75,8 @@ namespace StocksApp_xUnit.Controllers
         [HttpPost]
         public async Task<IActionResult> BuyOrder([FromForm]BuyOrderRequest buyOrderRequest)
         {
+            _logger.LogInformation("{ControllerName}.{ActionName}() invoked with buyOrderRequest: {buyOrderRequest}", nameof(TradeController), nameof(BuyOrder), buyOrderRequest);
+
             if (!ModelState.IsValid)
             {
                 // Re-populate model if validation fails
@@ -89,6 +95,8 @@ namespace StocksApp_xUnit.Controllers
         [HttpPost]
         public async Task<IActionResult> SellOrder([FromForm]SellOrderRequest sellOrderRequest)
         {
+            _logger.LogInformation("{ControllerName}.{ActionName}() invoked with sellOrderRequest: {sellOrderRequest}", nameof(TradeController), nameof(SellOrder), sellOrderRequest);
+
             if (!ModelState.IsValid)
             {
                 var model = await PopulateStockTrade(sellOrderRequest.StockSymbol
@@ -105,6 +113,8 @@ namespace StocksApp_xUnit.Controllers
         [Route("[action]")]
         public async Task<IActionResult> Orders()
         {
+            _logger.LogInformation("{ControllerName}.{ActionName}() invoked", nameof(TradeController), nameof(Orders));
+
             Orders orders = new Orders() 
             {
                 BuyOrders = await _stocksService.GetAllBuyOrders(),
@@ -117,6 +127,8 @@ namespace StocksApp_xUnit.Controllers
         [Route("[action]")]
         public async Task<IActionResult> OrdersPDF()
         {
+            _logger.LogInformation("{ControllerName}.{ActionName}() invoked", nameof(TradeController), nameof(OrdersPDF));
+
             Orders orders = new Orders()
             {
                 BuyOrders = await _stocksService.GetAllBuyOrders(),

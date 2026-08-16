@@ -1,10 +1,8 @@
-﻿using AutoFixture;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 using ServiceContracts;
-using Services;
 using StocksApp_xUnit.Controllers;
 using StocksApp_xUnit.Options;
 using StocksApp_xUnit.ViewModels;

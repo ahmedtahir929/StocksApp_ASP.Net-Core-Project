@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Repositories;
 using RepositoryContracts;
 using Rotativa.AspNetCore;
+using Serilog;
 using ServiceContracts;
 using Services;
 using StocksApp_xUnit.Options;
@@ -18,13 +19,26 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container =>
     container.RegisterType<FinnhubRepository>().As<IFinnhubRepository>().InstancePerLifetimeScope();
     container.RegisterType<StocksRepository>().As<IStocksRepository>().InstancePerLifetimeScope();
 });
+builder.Host.UseSerilog((context, services, loggerConfiguration) =>
+{
+    loggerConfiguration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services);
+});
 
+builder.Services.AddHttpLogging();
 builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<Entities.StockMarketDbContext>(options =>
+builder.Services.AddLogging();
+
+if (!builder.Environment.IsEnvironment("Test"))
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+    builder.Services.AddDbContext<Entities.StockMarketDbContext>(options =>
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
+}
+
 builder.Services.Configure<TradingOptions>(builder.Configuration.GetSection("TradingOptions"));
 builder.Services.Configure<TradingApiOptions>(builder.Configuration.GetSection("TradingApi"));
 
@@ -35,10 +49,17 @@ if (builder.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
+if (!builder.Environment.IsEnvironment("Test")) 
+{ 
+    RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
+}
 
+app.UseSerilogRequestLogging();
+app.UseHttpLogging();
 app.UseStaticFiles();
 app.UseRouting();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { } // Added for integration testing purposes
