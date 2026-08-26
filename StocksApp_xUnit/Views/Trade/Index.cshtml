@@ -1,17 +1,73 @@
-﻿@using Microsoft.Extensions.Configuration
-@inject IConfiguration Configuration
-@model StockTrade
-@{
+﻿@{
     ViewBag.Title = "Stocks";
 }
+@inject IConfiguration Configuration
+@model StockTrade
 
-<partial name="_StockCardPartial" model="@Model" />
+<div class="box white-back stock">
+    <div class="pt flex trading-panel-flex">
+
+        <div id="stock-price-panel">
+            <div class="stock-logo-box">
+                <img src="@Model.Logo"
+                     alt="@Model.StockName Logo"
+                     class="stock-logo-img"
+                     onerror="this.style.display='none'" />
+            </div>
+            <h3 class="stock-title">
+                @Model.StockName
+                <span class="text-blue" id="stockSymbolDisplay" style="font-weight: normal;">(@Model.StockSymbol)</span>
+            </h3>
+
+            <div class="stock-price">
+                <span class="text-grey">$</span><span id="live-price">@Model.Price.ToString("N2")</span>
+            </div>
+        </div>
+
+        <div id="new-order-panel">
+            <form method="post" id="tradeForm">
+                <input type="hidden" asp-for="StockSymbol" id="StockSymbol" />
+                <input type="hidden" asp-for="StockName" id="StockName" />
+                <input type="hidden" asp-for="Price" id="StockPrice" />
+
+                <div class="text-grey" style="font-weight: bold; font-size: 0.9em; margin-bottom: 5px;">New Order</div>
+
+                <div class="mb">
+                    <label asp-for="Quantity" class="form-label text-grey" style="font-size: 0.8em; display: block;">
+                        Quantity:
+                    </label>
+                    <input asp-for="Quantity"
+                           placeholder="1-100..."
+                           class="form-input"
+                           style="width: 100px;" />
+                    <span asp-validation-for="Quantity" class="text-red"></span>
+                </div>
+
+                <div id="initial-actions" class="button-panel">
+                    <button type="submit"
+                            formaction="/trade/SellOrder"
+                            class="button button-red-back trading-button mr">
+                        <i class="fa fa-arrow-down"></i> Sell
+                    </button>
+
+                    <button type="submit"
+                            formaction="/trade/BuyOrder"
+                            class="button button-green-back trading-button">
+                        <i class="fa fa-arrow-up"></i> Buy
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="details-container" class="mt"></div>
+</div>
 
 @section scripts
 {
     <script src="~/JS/finnhubwebsocket.js" asp-append-version="true"></script>
     <script>
-        const secretToken = '@Configuration["TradingApi:ApiKey"]';
+        const secretToken = '@Configuration["TradingApiOptions:ApiKey"]';
         const stockSymbol = '@Model.StockSymbol';
 
         document.addEventListener("DOMContentLoaded", function () {
@@ -21,7 +77,8 @@
         document.addEventListener("visibilitychange", function () {
             if (document.visibilityState === "hidden") {
                 cleanupSocket();
-            } else if (document.visibilityState === "visible") {
+            } 
+            else if (document.visibilityState === "visible") {
                 initStockSocket(secretToken);
             }
         });

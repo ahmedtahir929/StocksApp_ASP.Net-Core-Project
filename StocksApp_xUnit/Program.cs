@@ -40,7 +40,7 @@ if (!builder.Environment.IsEnvironment("Test"))
 }
 
 builder.Services.Configure<TradingOptions>(builder.Configuration.GetSection("TradingOptions"));
-builder.Services.Configure<TradingApiOptions>(builder.Configuration.GetSection("TradingApi"));
+builder.Services.Configure<TradingApiOptions>(builder.Configuration.GetSection("TradingApiOptions"));
 
 var app = builder.Build();
 

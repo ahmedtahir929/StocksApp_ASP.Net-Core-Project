@@ -15,7 +15,6 @@ function initStockSocket(token) {
   const symbol = symbolElement.value;
   currentSymbol = symbol;
 
-  // Create the WebSocket
   const ws = new WebSocket(`wss://ws.finnhub.io?token=${token}`);
 
   ws.addEventListener("open", function (event) {

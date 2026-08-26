@@ -4,7 +4,6 @@ using Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,11 +11,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entities.Migrations
 {
     [DbContext(typeof(StockMarketDbContext))]
-    [Migration("20260712152530_Initial")]
-    partial class Initial
+    partial class StockMarketDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,14 +38,21 @@ namespace Entities.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("StockName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(60)")
+                        .HasColumnName("StockName");
 
                     b.Property<string>("StockSymbol")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(12)")
+                        .HasColumnName("StockSymbol");
 
                     b.HasKey("BuyOrderID");
 
-                    b.ToTable("BuyOrders", (string)null);
+                    b.ToTable("BuyOrders", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_BuyOrders_Price", "[Price] >= 1 AND [Price] <= 100000");
+
+                            t.HasCheckConstraint("CK_BuyOrders_Quantity", "[Quantity] >= 1 AND [Quantity] <= 100000");
+                        });
                 });
 
             modelBuilder.Entity("Entities.SellOrder", b =>
@@ -67,14 +71,21 @@ namespace Entities.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("StockName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(60)")
+                        .HasColumnName("StockName");
 
                     b.Property<string>("StockSymbol")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(12)")
+                        .HasColumnName("StockSymbol");
 
                     b.HasKey("SellOrderID");
 
-                    b.ToTable("SellOrders", (string)null);
+                    b.ToTable("SellOrders", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_SellOrders_Price", "[Price] >= 1 AND [Price] <= 100000");
+
+                            t.HasCheckConstraint("CK_SellOrders_Quantity", "[Quantity] >= 1 AND [Quantity] <= 100000");
+                        });
                 });
 #pragma warning restore 612, 618
         }

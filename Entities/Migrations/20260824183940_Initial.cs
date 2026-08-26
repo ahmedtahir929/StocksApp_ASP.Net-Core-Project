@@ -16,8 +16,8 @@ namespace Entities.Migrations
                 columns: table => new
                 {
                     BuyOrderID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StockSymbol = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StockName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StockSymbol = table.Column<string>(type: "nvarchar(12)", nullable: true),
+                    StockName = table.Column<string>(type: "nvarchar(60)", nullable: true),
                     DateAndTimeOfOrder = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Quantity = table.Column<long>(type: "bigint", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false)
@@ -25,6 +25,8 @@ namespace Entities.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BuyOrders", x => x.BuyOrderID);
+                    table.CheckConstraint("CK_BuyOrders_Price", "[Price] >= 1 AND [Price] <= 100000");
+                    table.CheckConstraint("CK_BuyOrders_Quantity", "[Quantity] >= 1 AND [Quantity] <= 100000");
                 });
 
             migrationBuilder.CreateTable(
@@ -32,8 +34,8 @@ namespace Entities.Migrations
                 columns: table => new
                 {
                     SellOrderID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StockSymbol = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StockName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StockSymbol = table.Column<string>(type: "nvarchar(12)", nullable: true),
+                    StockName = table.Column<string>(type: "nvarchar(60)", nullable: true),
                     DateAndTimeOfOrder = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Quantity = table.Column<long>(type: "bigint", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false)
@@ -41,6 +43,8 @@ namespace Entities.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SellOrders", x => x.SellOrderID);
+                    table.CheckConstraint("CK_SellOrders_Price", "[Price] >= 1 AND [Price] <= 100000");
+                    table.CheckConstraint("CK_SellOrders_Quantity", "[Quantity] >= 1 AND [Quantity] <= 100000");
                 });
         }
 

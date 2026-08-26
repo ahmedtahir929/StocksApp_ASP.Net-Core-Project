@@ -50,12 +50,11 @@
 </div>
 
 @section scripts {
-    <!-- Include your existing WebSocket script -->
     <script src="~/JS/finnhubwebsocket.js" asp-append-version="true"></script>
 
     <script>
         // Store the token from appsettings.json
-        const secretToken = '@Configuration["TradingApi:ApiKey"]';
+        const secretToken = '@Configuration["TradingApiOptions:ApiKey"]';
 
         async function loadStockDetails(event, symbol) {
             event.preventDefault();
