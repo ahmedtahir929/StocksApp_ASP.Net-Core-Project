@@ -5,13 +5,11 @@ using Rotativa.AspNetCore;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using ServiceContracts;
 using ServiceContracts.DTO;
 using Services;
 using StocksApp_xUnit.Controllers;
 using StocksApp_xUnit.Options;
 using StocksApp_xUnit.ViewModels;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace StockAppTests
@@ -20,12 +18,9 @@ namespace StockAppTests
   {
     private readonly IFixture _fixture;
     private readonly IStocksService _stocksService;
-    private readonly IFinnhubService _finnhubService;
-    private readonly IOptions<TradingOptions> _options;
     private readonly ILogger<TradeController> _logger;
     private readonly Mock<ILogger<TradeController>> _loggerMock;
     private readonly Mock<IStocksService> _stocksServiceMock;
-    private readonly Mock<IFinnhubService> _finnhubServiceMock;
     private readonly Mock<IOptions<TradingOptions>> _optionsMock;
 
     public TradeControllerTests()
@@ -38,9 +33,6 @@ namespace StockAppTests
       _stocksServiceMock = new Mock<IStocksService>();
       _stocksService = _stocksServiceMock.Object;
 
-      _finnhubServiceMock = new Mock<IFinnhubService>();
-      _finnhubService = _finnhubServiceMock.Object;
-
       _optionsMock = new Mock<IOptions<TradingOptions>>();
       _optionsMock
           .Setup(o => o.Value)
@@ -48,8 +40,6 @@ namespace StockAppTests
           {
             DefaultOrderQuantity = 10
           });
-
-      _options = _optionsMock.Object;
     }
 
     #region Index
@@ -59,7 +49,7 @@ namespace StockAppTests
     public async Task Index_ShouldReturnIndexViewWithDefaultStockTrade_WhenSymbolIsNullOrEmpty()
     {
       // Arrange
-      TradeController tradeController = new TradeController(_options, _finnhubService, _stocksService, _logger);
+      TradeController tradeController = new TradeController(_stocksService, _logger);
 
       // Act
       IActionResult result = await tradeController.Index(null);
@@ -79,7 +69,7 @@ namespace StockAppTests
     public async Task Index_ShouldReturnIndexViewWithStockTrade_WhenSymbolIsValid()
     {
       // Arrange
-      TradeController tradeController = new TradeController(_options, _finnhubService, _stocksService, _logger);
+      TradeController tradeController = new TradeController(_stocksService, _logger);
 
       // Act
       IActionResult result = await tradeController.Index("AAPL");
@@ -99,8 +89,6 @@ namespace StockAppTests
     {
       // Arrange
       TradeController controller = new TradeController(
-          _options,
-          _finnhubService,
           _stocksService,
           _logger);
 
@@ -134,8 +122,6 @@ namespace StockAppTests
     {
       // Arrange
       TradeController controller = new TradeController(
-          _options,
-          _finnhubService,
           _stocksService,
           _logger);
 
@@ -172,8 +158,6 @@ namespace StockAppTests
     {
       // Arrange
       TradeController controller = new TradeController(
-          _options,
-          _finnhubService,
           _stocksService,
           _logger);
 
@@ -207,8 +191,6 @@ namespace StockAppTests
     {
       // Arrange
       TradeController controller = new TradeController(
-          _options,
-          _finnhubService,
           _stocksService,
           _logger);
 
@@ -255,8 +237,6 @@ namespace StockAppTests
       _stocksServiceMock.Setup(temp => temp.GetAllSellOrders()).ReturnsAsync(sellOrders);
 
       TradeController controller = new TradeController(
-          _options,
-          _finnhubService,
           _stocksService,
           _logger);
 
@@ -292,8 +272,6 @@ namespace StockAppTests
       _stocksServiceMock.Setup(temp => temp.GetAllSellOrders()).ReturnsAsync(sellOrders);
 
       TradeController controller = new TradeController(
-          _options,
-          _finnhubService,
           _stocksService,
           _logger);
 
