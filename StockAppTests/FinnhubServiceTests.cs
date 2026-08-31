@@ -1,5 +1,4 @@
-﻿using Castle.Core.Logging;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RepositoryContracts;
@@ -10,21 +9,59 @@ namespace StockAppTests
 {
   public class FinnhubServiceTests
   {
-    private readonly ILogger<FinnhubService> _logger;
-    private readonly IFinnhubService _finnhubService;
+    private readonly ILogger<FinnhubStocksService> _loggerStocksService;
+    private readonly ILogger<FinnhubStockPriceQuoteService> _loggerStockPriceQuoteService;
+    private readonly ILogger<FinnhubSearchStocksService> _loggerSearchStocksService;
+    private readonly ILogger<FinnhubCompanyProfileService> _loggerCompanyProfileService;
+    private readonly IFinnhubStocksService _finnhubStocksService;
+    private readonly IFinnhubStockPriceQuoteService _finnhubStockPriceQuoteService;
+    private readonly IFinnhubSearchStocksService _finnhubSearchStocksService;
+    private readonly IFinnhubCompanyProfileService _finnhubCompanyProfileService;
     private readonly IFinnhubRepository _finnhubRepository;
-    private readonly Mock<ILogger<FinnhubService>> _loggerMock;
+    private readonly Mock<ILogger<FinnhubStocksService>> _loggerStocksServiceMock;
+    private readonly Mock<ILogger<FinnhubStockPriceQuoteService>> _loggerStockPriceQuoteServiceMock;
+    private readonly Mock<ILogger<FinnhubSearchStocksService>> _loggerSearchStocksServiceMock;
+    private readonly Mock<ILogger<FinnhubCompanyProfileService>> _loggerCompanyProfileServiceMock;
     private readonly Mock<IFinnhubRepository> _finnhubRepositoryMock;
 
     public FinnhubServiceTests()
     {
+      // Repository
       _finnhubRepositoryMock = new Mock<IFinnhubRepository>();
       _finnhubRepository = _finnhubRepositoryMock.Object;
 
-      _loggerMock = new Mock<ILogger<FinnhubService>>();
-      _logger = _loggerMock.Object;
+      // Stocks Service Logger
+      _loggerStocksServiceMock = new Mock<ILogger<FinnhubStocksService>>();
+      _loggerStocksService = _loggerStocksServiceMock.Object;
 
-      _finnhubService = new FinnhubService(_finnhubRepository, _logger);
+      // Stock Price Quote Service Logger
+      _loggerStockPriceQuoteServiceMock = new Mock<ILogger<FinnhubStockPriceQuoteService>>();
+      _loggerStockPriceQuoteService = _loggerStockPriceQuoteServiceMock.Object;
+
+      // Search Stocks Service Logger
+      _loggerSearchStocksServiceMock = new Mock<ILogger<FinnhubSearchStocksService>>();
+      _loggerSearchStocksService = _loggerSearchStocksServiceMock.Object;
+
+      // Company Profile Service Logger
+      _loggerCompanyProfileServiceMock = new Mock<ILogger<FinnhubCompanyProfileService>>();
+      _loggerCompanyProfileService = _loggerCompanyProfileServiceMock.Object;
+
+      // Services
+      _finnhubStocksService = new FinnhubStocksService(
+          _finnhubRepository,
+          _loggerStocksService);
+
+      _finnhubStockPriceQuoteService = new FinnhubStockPriceQuoteService(
+          _finnhubRepository,
+          _loggerStockPriceQuoteService);
+
+      _finnhubSearchStocksService = new FinnhubSearchStocksService(
+          _finnhubRepository,
+          _loggerSearchStocksService);
+
+      _finnhubCompanyProfileService = new FinnhubCompanyProfileService(
+          _finnhubRepository,
+          _loggerCompanyProfileService);
     }
 
     #region GetCompanyProfile
@@ -37,7 +74,7 @@ namespace StockAppTests
       string? stockSymbol = null;
 
       //Act
-      var result = await _finnhubService.GetCompanyProfile(stockSymbol);
+      var result = await _finnhubCompanyProfileService.GetCompanyProfile(stockSymbol);
 
       //Assert
       result.Should().BeNull();
@@ -51,7 +88,7 @@ namespace StockAppTests
       string stockSymbol = "XYZ";
 
       //Act
-      var result = await _finnhubService.GetCompanyProfile(stockSymbol);
+      var result = await _finnhubCompanyProfileService.GetCompanyProfile(stockSymbol);
 
       //Assert
       result.Should().BeNull();
@@ -73,7 +110,7 @@ namespace StockAppTests
           .ReturnsAsync(expectedCompanyProfile);
 
       //Act
-      var result = await _finnhubService.GetCompanyProfile(stockSymbol);
+      var result = await _finnhubCompanyProfileService.GetCompanyProfile(stockSymbol);
 
       //Assert
       result.Should().NotBeNull();
@@ -92,7 +129,7 @@ namespace StockAppTests
       string? stockSymbol = null;
 
       //Act
-      var result = await _finnhubService.GetStockPriceQuote(stockSymbol);
+      var result = await _finnhubStockPriceQuoteService.GetStockPriceQuote(stockSymbol);
 
       //Assert
       result.Should().BeNull();
@@ -106,7 +143,7 @@ namespace StockAppTests
       string stockSymbol = "XYZ";
 
       //Act
-      var result = await _finnhubService.GetStockPriceQuote(stockSymbol);
+      var result = await _finnhubStockPriceQuoteService.GetStockPriceQuote(stockSymbol);
 
       //Assert
       result.Should().BeNull();
@@ -128,7 +165,7 @@ namespace StockAppTests
           .ReturnsAsync(expectedStockPriceQuote);
 
       //Act
-      var result = await _finnhubService.GetStockPriceQuote(stockSymbol);
+      var result = await _finnhubStockPriceQuoteService.GetStockPriceQuote(stockSymbol);
 
       //Assert
       result.Should().NotBeNull();
@@ -148,7 +185,7 @@ namespace StockAppTests
       _finnhubRepositoryMock.Setup(repo => repo.GetStocks())
           .ReturnsAsync((List<Dictionary<string, string>>?)null);
       //Act
-      var result = await _finnhubService.GetStocks();
+      var result = await _finnhubStocksService.GetStocks();
       //Assert
       result.Should().NotBeNull();
       result.Should().BeEmpty();
@@ -167,7 +204,7 @@ namespace StockAppTests
           .Setup(repo => repo.GetStocks())
           .ReturnsAsync(expectedStocks);
       //Act
-      var result = await _finnhubService.GetStocks();
+      var result = await _finnhubStocksService.GetStocks();
       //Assert
       result.Should().NotBeNull();
       result.Should().BeEquivalentTo(expectedStocks);
@@ -184,7 +221,7 @@ namespace StockAppTests
       string? stockSymbolToSearch = null;
 
       //Act
-      var result = await _finnhubService.SearchStocks(stockSymbolToSearch);
+      var result = await _finnhubSearchStocksService.SearchStocks(stockSymbolToSearch);
 
       //Assert
       result.Should().BeNull();
@@ -197,7 +234,7 @@ namespace StockAppTests
       string stockSymbolToSearch = "XYZ";
 
       //Act
-      var result = await _finnhubService.SearchStocks(stockSymbolToSearch);
+      var result = await _finnhubSearchStocksService.SearchStocks(stockSymbolToSearch);
 
       //Assert
       result.Should().BeNull();
@@ -218,7 +255,7 @@ namespace StockAppTests
           .ReturnsAsync(expectedStock);
 
       //Act
-      var result = await _finnhubService.SearchStocks(stockSymbolToSearch);
+      var result = await _finnhubSearchStocksService.SearchStocks(stockSymbolToSearch);
 
       //Assert
       result.Should().NotBeNull();

@@ -14,16 +14,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(container =>
 {
-    container.RegisterType<FinnhubService>().As<IFinnhubService>().InstancePerLifetimeScope();
-    container.RegisterType<StocksService>().As<IStocksService>().InstancePerLifetimeScope();
-    container.RegisterType<FinnhubRepository>().As<IFinnhubRepository>().InstancePerLifetimeScope();
-    container.RegisterType<StocksRepository>().As<IStocksRepository>().InstancePerLifetimeScope();
+  container.RegisterType<FinnhubCompanyProfileService>().As<IFinnhubCompanyProfileService>().InstancePerLifetimeScope();
+  container.RegisterType<FinnhubSearchStocksService>().As<IFinnhubSearchStocksService>().InstancePerLifetimeScope();
+  container.RegisterType<FinnhubStockPriceQuoteService>().As<IFinnhubStockPriceQuoteService>().InstancePerLifetimeScope();
+  container.RegisterType<FinnhubStocksService>().As<IFinnhubStocksService>().InstancePerLifetimeScope();
+  container.RegisterType<StocksService>().As<IStocksService>().InstancePerLifetimeScope();
+  container.RegisterType<FinnhubRepository>().As<IFinnhubRepository>().InstancePerLifetimeScope();
+  container.RegisterType<StocksRepository>().As<IStocksRepository>().InstancePerLifetimeScope();
 });
 builder.Host.UseSerilog((context, services, loggerConfiguration) =>
 {
-    loggerConfiguration
-    .ReadFrom.Configuration(context.Configuration)
-    .ReadFrom.Services(services);
+  loggerConfiguration
+  .ReadFrom.Configuration(context.Configuration)
+  .ReadFrom.Services(services);
 });
 
 //Configure services
@@ -33,17 +36,17 @@ var app = builder.Build();
 
 if (builder.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+  app.UseDeveloperExceptionPage();
 }
 else
 {
-  app.UseExceptionHandler("/Error");
+  app.UseExceptionHandler("/Home/Error");
   app.UseExceptionHandlingMiddleware();
 }
 
-if (!builder.Environment.IsEnvironment("Test")) 
-{ 
-    RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
+if (!builder.Environment.IsEnvironment("Test"))
+{
+  RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
 }
 
 app.UseSerilogRequestLogging();

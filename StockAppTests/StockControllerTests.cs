@@ -1,5 +1,4 @@
-﻿using Castle.Core.Logging;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,17 +12,17 @@ namespace StockAppTests
 {
   public class StockControllerTests
   {
-    private readonly IFinnhubService _finnhubService;
+    private readonly IFinnhubStocksService _finnhubStocksService;
     private readonly IOptions<TradingOptions> _options;
     private readonly ILogger<StockController> _logger;
     private readonly Mock<ILogger<StockController>> _loggerMock;
-    private readonly Mock<IFinnhubService> _finnhubServiceMock;
+    private readonly Mock<IFinnhubStocksService> _finnhubStocksServiceMock;
     private readonly Mock<IOptions<TradingOptions>> _optionsMock;
 
     public StockControllerTests()
     {
-      _finnhubServiceMock = new Mock<IFinnhubService>();
-      _finnhubService = _finnhubServiceMock.Object;
+      _finnhubStocksServiceMock = new Mock<IFinnhubStocksService>();
+      _finnhubStocksService = _finnhubStocksServiceMock.Object;
 
       _loggerMock = new Mock<ILogger<StockController>>();
       _logger= _loggerMock.Object;
@@ -46,11 +45,14 @@ namespace StockAppTests
     public async Task Explore_ShouldReturnEmptyStockList_WhenGetStocksReturnsNull()
     {
       // Arrange
-      _finnhubServiceMock
+      _finnhubStocksServiceMock
           .Setup(x => x.GetStocks())
           .ReturnsAsync(new List<Dictionary<string, string>>());
 
-      StockController controller = new StockController(_options, _finnhubService, _logger);
+      StockController controller = new StockController(
+        _options,
+        _finnhubStocksService,
+        _logger);
 
       // Act
       IActionResult result = await controller.Explore(null);
@@ -88,11 +90,14 @@ namespace StockAppTests
                 }
             };
 
-      _finnhubServiceMock
+      _finnhubStocksServiceMock
           .Setup(x => x.GetStocks())
           .ReturnsAsync(stocks);
 
-      StockController controller = new StockController(_options, _finnhubService, _logger);
+      StockController controller = new StockController(
+        _options,
+        _finnhubStocksService,
+        _logger);
 
       // Act
       IActionResult result = await controller.Explore(null);
@@ -119,7 +124,10 @@ namespace StockAppTests
     public void GetStockDetails_ShouldReturnViewComponentResult()
     {
       // Arrange
-      StockController controller = new StockController(_options, _finnhubService, _logger);
+      StockController controller = new StockController(
+        _options,
+        _finnhubStocksService,
+        _logger);
 
       // Act
       IActionResult result = controller.GetStockDetails("AAPL");

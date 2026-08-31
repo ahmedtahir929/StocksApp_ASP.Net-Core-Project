@@ -2,6 +2,7 @@
 
 namespace StocksApp_xUnit.Controllers
 {
+  [Route("[controller]")]
   public class HomeController : Controller
   {
     [Route("[action]")]

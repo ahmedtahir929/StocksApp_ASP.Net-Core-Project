@@ -10,13 +10,19 @@ namespace StocksApp_xUnit.Filters.ActionFilters
   public class PopulateStockTradeActionFilter : IAsyncActionFilter
   {
     private readonly ILogger<PopulateStockTradeActionFilter> _logger;
-    private readonly IFinnhubService _finnhubService;
+    private readonly IFinnhubStockPriceQuoteService _finnhubStockPriceQuoteService;
+    private readonly IFinnhubCompanyProfileService _finnhubCompanyProfileService;
     private readonly TradingOptions _tradingOptions;
 
-    public PopulateStockTradeActionFilter(ILogger<PopulateStockTradeActionFilter> logger, IFinnhubService finnhubService, IOptions<TradingOptions> tradingOptions)
+    public PopulateStockTradeActionFilter(
+      ILogger<PopulateStockTradeActionFilter> logger,
+      IFinnhubStockPriceQuoteService finnhubStockPriceQuoteService,
+      IFinnhubCompanyProfileService finnhubCompanyProfileService,
+      IOptions<TradingOptions> tradingOptions)
     {
       _logger = logger;
-      _finnhubService = finnhubService;
+      _finnhubStockPriceQuoteService = finnhubStockPriceQuoteService;
+      _finnhubCompanyProfileService = finnhubCompanyProfileService;
       _tradingOptions = tradingOptions.Value;
     }
 
@@ -30,8 +36,10 @@ namespace StocksApp_xUnit.Filters.ActionFilters
         ? value as string ?? "MSFT"
         : "MSFT";
 
-      var companyProfile = await _finnhubService.GetCompanyProfile(stockSymbol);
-      var stockQuote = await _finnhubService.GetStockPriceQuote(stockSymbol);
+      var companyProfile = 
+        await _finnhubCompanyProfileService.GetCompanyProfile(stockSymbol);
+      var stockQuote = 
+        await _finnhubStockPriceQuoteService.GetStockPriceQuote(stockSymbol);
 
       StockTrade stockTrade = new StockTrade
       {
